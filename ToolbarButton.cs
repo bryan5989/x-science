@@ -4,30 +4,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using KSP.IO;
 
 namespace ScienceChecklist {
-	[KSPAddon(KSPAddon.Startup.MainMenu, true)]
-	public sealed class ToolbarButton : MonoBehaviour {
-		
-		#region METHODS (PUBLIC)
-		
-		public void Awake () {
+	public sealed class ToolbarButton {
+
+		public ToolbarButton () {
 			_logger = new Logger(this);
-			_logger.Trace("Awake");
-		}
-
-		public void Start () {
-			_logger.Trace("Start");
-			DontDestroyOnLoad(this);
-
 			GameEvents.onGUIApplicationLauncherReady.Add(AddApplication);
 			GameEvents.onGUIApplicationLauncherDestroyed.Add(RemoveApplication);
 		}
 
-		public void OnApplicationQuit () {
-			_logger.Trace("OnApplicationQuit");
-		}
+		#region EVENTS
+
+		public event EventHandler Open;
+		public event EventHandler Close;
+
+		#endregion
+
+		#region METHODS (PUBLIC)
 
 		public void Update () {
 		}
@@ -75,10 +69,12 @@ namespace ScienceChecklist {
 
 		private void OnToggleOn () {
 			_logger.Trace("OnToggleOn");
+			OnOpen(EventArgs.Empty);
 		}
 
 		private void OnToggleOff () {
 			_logger.Trace("OnToggleOff");
+			OnClose(EventArgs.Empty);
 		}
 
 		private void OnHover () {
@@ -97,12 +93,26 @@ namespace ScienceChecklist {
 			_logger.Trace("OnDisable");
 		}
 
+		private void OnOpen (EventArgs e) {
+			_logger.Trace("OnOpen");
+			if (Open != null) {
+				Open(this, e);
+			}
+		}
+
+		private void OnClose (EventArgs e) {
+			_logger.Trace("OnClose");
+			if (Close != null) {
+				Close(this, e);
+			}
+		}
+
 		#endregion
 
 		#region FIELDS
 
 		private ApplicationLauncherButton _button;
-		private Logger _logger;
+		private readonly Logger _logger;
 
 		#endregion
 	}
