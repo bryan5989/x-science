@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace ScienceChecklist {
-	public sealed class ToolbarButton {
+	internal sealed class ToolbarButton {
 
 		public ToolbarButton () {
 			_logger = new Logger(this);

@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ScienceChecklist</RootNamespace>
     <AssemblyName>[x] Science!</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -45,11 +47,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
       <HintPath>..\..\Stock 0.24.2\KSP_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
@@ -68,6 +65,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="icon.png" />
     <Content Include="LICENSE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -80,7 +78,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Deploy.cs</LastGenOutput>
     </None>
-    <None Include="[x] Science!.version">
+    <None Include="GameData\[x] Science!\[x] Science!.version">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -90,10 +88,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>@ECHO off
-rmdir /s /q "./GameData"
-rmdir /q .
-mkdir "GameData/[x] Science!"
-robocopy .  "GameData/[x] Science!" /xd "GameData" /xf "*.zip"  /njh /njs /ndl /nc /ns /np /nfl /move
+robocopy *.* "GameData/[x] Science!" /xd "GameData" /xf "*.zip"  /njh /njs /ndl /nc /ns /np /nfl /move
 "C:\Program Files\WinRAR\winrar.exe" a -r -afzip -ibck "[x] Science!.zip"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>

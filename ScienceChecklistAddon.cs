@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace ScienceChecklist {
 	[KSPAddon(KSPAddon.Startup.MainMenu, true)]
-	public class ScienceChecklistAddon : MonoBehaviour {
+	public sealed class ScienceChecklistAddon : MonoBehaviour {
 
 		#region METHODS (PUBLIC)
 
