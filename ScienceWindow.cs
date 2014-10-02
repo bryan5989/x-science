@@ -44,6 +44,11 @@ namespace ScienceChecklist {
 			var bodies = FlightGlobals.Bodies;
 			var situations = Enum.GetValues (typeof (ExperimentSituations)).Cast<ExperimentSituations>();
 			var biomes = bodies.ToDictionary(x => x, ResearchAndDevelopment.GetBiomeTags);
+			var scienceSubjects = ResearchAndDevelopment.GetSubjects();
+
+			foreach (var x in scienceSubjects) {
+				_logger.Trace(x.id + " - " + x.science + " / " + x.scienceCap);
+			}
 
 			foreach (var experiment in experiments) {
 				foreach (var body in bodies) {
@@ -73,16 +78,21 @@ namespace ScienceChecklist {
 
 						if (experiment.BiomeIsRelevantWhile(situation)) {
 							foreach (var biome in biomes[body]) {
-								exps.Add(new Experiment(experiment, body, situation, biome));
+								var exp = new Experiment(experiment, body, situation, biome);
+								var completed = scienceSubjects.SingleOrDefault(x => x.id == experiment.id + "@" + body.name + situation + biome);
+								exp.CompletedScience = completed == null ? 0 : completed.science;
+								exps.Add(exp);
 							}
 						} else {
-							exps.Add(new Experiment(experiment, body, situation));
+							var exp = new Experiment(experiment, body, situation);
+							exps.Add(exp);
 						}
 					}
 				}
 			}
 
 			_experiments = exps;
+			_completeCount = _experiments.Count(x => x.IsComplete);
 
 			_logger.Info("Found " + _experiments.Count + " sciences");
 		}
@@ -93,7 +103,7 @@ namespace ScienceChecklist {
 
 		private void DrawControls (int windowId) {
 			GUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-			GUILayout.Label(new GUIContent(string.Format("{0}/{1} experiments complete.", 0, _experiments.Count)));
+			GUILayout.Label(new GUIContent(string.Format("{0}/{1} experiments complete.", _completeCount, _experiments.Count)));
 			_scrollPos = GUILayout.BeginScrollView(_scrollPos, GUI.skin.scrollView);
 
 			foreach (var experiment in _experiments) {
@@ -113,6 +123,7 @@ namespace ScienceChecklist {
 		private Rect _rect;
 		private Vector2 _scrollPos;
 		private List<Experiment> _experiments;
+		private int _completeCount;
 
 		private readonly int _windowId = UnityEngine.Random.Range(0, int.MaxValue);
 
