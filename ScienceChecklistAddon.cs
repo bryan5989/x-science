@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,14 +14,17 @@ namespace ScienceChecklist {
 		public void Awake () {
 			_logger = new Logger(this);
 			_logger.Trace("Awake");
+			_window = new ScienceWindow();
+			_button = new ToolbarButton();
+			_button.Open += Button_Open;
+			_button.Close += Button_Close;
+			GameEvents.onGUIApplicationLauncherReady.Add(Load);
+			GameEvents.onGUIApplicationLauncherDestroyed.Add(Unload);
 		}
 
 		public void Start () {
 			_logger.Trace("Start");
 			DontDestroyOnLoad(this);
-			_button = new ToolbarButton();
-			_button.Open += Button_Open;
-			_button.Close += Button_Close;
 		}
 
 		public void OnApplicationQuit () {
@@ -33,18 +37,44 @@ namespace ScienceChecklist {
 		}
 
 		public void OnGUI () {
+			_window.Draw();
 		}
 
 		#endregion
 
 		#region METHODS (PRIVATE)
 
-		void Button_Open (object sender, EventArgs e) {
-			_logger.Trace("Button_Open");
+		private void Load () {
+			_button.Add();
+			_rndLoader = WaitForRnD();
+			StartCoroutine(_rndLoader);
 		}
 
-		void Button_Close (object sender, EventArgs e) {
+		private void Unload () {
+			_button.Remove();
+			if (_rndLoader != null) {
+				StopCoroutine(_rndLoader);
+			}
+		}
+
+		private IEnumerator WaitForRnD () {
+			while (ResearchAndDevelopment.Instance == null) {
+				yield return 0;
+			}
+
+			_logger.Info("Science ready");
+			_window.RefreshScience();
+			_rndLoader = null;
+		}
+
+		private void Button_Open (object sender, EventArgs e) {
+			_logger.Trace("Button_Open");
+			_window.IsVisible = true;
+		}
+
+		private void Button_Close (object sender, EventArgs e) {
 			_logger.Trace("Button_Close");
+			_window.IsVisible = false;
 		}
 
 		#endregion
@@ -54,6 +84,7 @@ namespace ScienceChecklist {
 		private Logger _logger;
 		private ToolbarButton _button;
 		private ScienceWindow _window;
+		private IEnumerator _rndLoader;
 
 		#endregion
 	}

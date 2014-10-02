@@ -10,8 +10,6 @@ namespace ScienceChecklist {
 
 		public ToolbarButton () {
 			_logger = new Logger(this);
-			GameEvents.onGUIApplicationLauncherReady.Add(AddApplication);
-			GameEvents.onGUIApplicationLauncherDestroyed.Add(RemoveApplication);
 		}
 
 		#region EVENTS
@@ -22,21 +20,11 @@ namespace ScienceChecklist {
 		#endregion
 
 		#region METHODS (PUBLIC)
-
-		public void Update () {
-		}
-
-		public void OnGUI () {
-		}
-
-		#endregion
-
-		#region METHODS (PRIVATE)
-
-		private void AddApplication () {
-			_logger.Trace("AddApplication");
+		
+		public void Add () {
+			_logger.Trace("Add");
 			if (_button != null) {
-				_logger.Debug("Mod application already added");
+				_logger.Debug("Button already added");
 				return;
 			}
 
@@ -46,29 +34,33 @@ namespace ScienceChecklist {
 			
 			texture.LoadImage(iconStream);
 			texture.Apply();
-
-			_logger.Info("Adding mod application");
+			
+			_logger.Info("Adding button");
 			_button = ApplicationLauncher.Instance.AddModApplication(
 				OnToggleOn,
 				OnToggleOff,
-				OnHover,
-				OnDeHover,
-				OnEnable,
-				OnDisable,
+				null,
+				null,
+				null,
+				null,
 				ApplicationLauncher.AppScenes.MAPVIEW | ApplicationLauncher.AppScenes.SPACECENTER,
 				texture);
 		}
 
-		private void RemoveApplication () {
+		public void Remove () {
 			if (_button == null) {
-				_logger.Debug("Mod application already removed");
+				_logger.Debug("Button already removed");
 				return;
 			}
 
-			_logger.Info("Removing mod application");
+			_logger.Info("Removing button");
 			ApplicationLauncher.Instance.RemoveApplication(_button);
 			_button = null;
 		}
+
+		#endregion
+
+		#region METHODS (PRIVATE)
 
 		private void OnToggleOn () {
 			_logger.Trace("OnToggleOn");
@@ -78,22 +70,6 @@ namespace ScienceChecklist {
 		private void OnToggleOff () {
 			_logger.Trace("OnToggleOff");
 			OnClose(EventArgs.Empty);
-		}
-
-		private void OnHover () {
-			_logger.Trace("OnHover");
-		}
-
-		private void OnDeHover () {
-			_logger.Trace("OnDeHover");
-		}
-
-		private void OnEnable () {
-			_logger.Trace("OnEnable");
-		}
-
-		private void OnDisable () {
-			_logger.Trace("OnDisable");
 		}
 
 		private void OnOpen (EventArgs e) {
