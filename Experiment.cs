@@ -10,6 +10,8 @@ namespace ScienceChecklist {
 			_body = body;
 			_situation = situation;
 			_biome = biome;
+
+			Update();
 		}
 
 		#region PROPERTIES
@@ -19,12 +21,11 @@ namespace ScienceChecklist {
 		public ExperimentSituations Situation         { get { return _situation; } }
 		public string               Biome             { get { return _biome; } }
 
-		public float CompletedScience { get; set; }
-		public float InProgressScience { get; set; }
+		public float CompletedScience { get; private set; }
+		public bool  IsAvailable      { get; private set; }
 
 		public float TotalScience { get { return ScienceExperiment.scienceCap * ScienceModifier; } }
-
-		public bool IsComplete { get { return Math.Abs (CompletedScience - TotalScience) < 0.01; } }
+		public bool  IsComplete   { get { return Math.Abs (CompletedScience - TotalScience) < 0.01; } }
 
 		public float ScienceModifier {
 			get {
@@ -50,6 +51,13 @@ namespace ScienceChecklist {
 		#endregion
 
 		#region METHODS (PUBLIC)
+
+		public void Update () {
+			var subject = ResearchAndDevelopment.GetSubjectByID(ScienceExperiment.id + "@" + Body.name + Situation + Biome);
+			CompletedScience = subject == null ? 0 : subject.science;
+#warning This isn't right.
+			IsAvailable = subject != null;
+		}
 
 		public override string ToString () {
 			return string.Format (

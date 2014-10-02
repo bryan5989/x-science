@@ -44,12 +44,7 @@ namespace ScienceChecklist {
 			var bodies = FlightGlobals.Bodies;
 			var situations = Enum.GetValues (typeof (ExperimentSituations)).Cast<ExperimentSituations>();
 			var biomes = bodies.ToDictionary(x => x, ResearchAndDevelopment.GetBiomeTags);
-			var scienceSubjects = ResearchAndDevelopment.GetSubjects();
-
-			foreach (var x in scienceSubjects) {
-				_logger.Trace(x.id + " - " + x.science + " / " + x.scienceCap);
-			}
-
+			
 			foreach (var experiment in experiments) {
 				foreach (var body in bodies) {
 					if (experiment.requireAtmosphere && !body.atmosphere) {
@@ -78,14 +73,10 @@ namespace ScienceChecklist {
 
 						if (experiment.BiomeIsRelevantWhile(situation)) {
 							foreach (var biome in biomes[body]) {
-								var exp = new Experiment(experiment, body, situation, biome);
-								var completed = scienceSubjects.SingleOrDefault(x => x.id == experiment.id + "@" + body.name + situation + biome);
-								exp.CompletedScience = completed == null ? 0 : completed.science;
-								exps.Add(exp);
+								exps.Add(new Experiment(experiment, body, situation, biome));
 							}
 						} else {
-							var exp = new Experiment(experiment, body, situation);
-							exps.Add(exp);
+							exps.Add(new Experiment(experiment, body, situation));
 						}
 					}
 				}
@@ -93,6 +84,7 @@ namespace ScienceChecklist {
 
 			_experiments = exps;
 			_completeCount = _experiments.Count(x => x.IsComplete);
+			_availableCount = _experiments.Count(x => x.IsAvailable);
 
 			_logger.Info("Found " + _experiments.Count + " sciences");
 		}
@@ -100,10 +92,10 @@ namespace ScienceChecklist {
 		#endregion
 
 		#region METHODS (PRIVATE)
-
+		
 		private void DrawControls (int windowId) {
 			GUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-			GUILayout.Label(new GUIContent(string.Format("{0}/{1} experiments complete.", _completeCount, _experiments.Count)));
+			GUILayout.Label(new GUIContent(string.Format("{0}/{1}({2}) experiments complete.", _completeCount, _availableCount, _experiments.Count)));
 			_scrollPos = GUILayout.BeginScrollView(_scrollPos, GUI.skin.scrollView);
 
 			foreach (var experiment in _experiments) {
@@ -124,6 +116,7 @@ namespace ScienceChecklist {
 		private Vector2 _scrollPos;
 		private List<Experiment> _experiments;
 		private int _completeCount;
+		private int _availableCount;
 
 		private readonly int _windowId = UnityEngine.Random.Range(0, int.MaxValue);
 
