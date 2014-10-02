@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="ScienceChecklistAddon.cs" />
     <Compile Include="ScienceWindow.cs" />
+    <Compile Include="StreamEx.cs" />
     <Compile Include="ToolbarButton.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -65,7 +66,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="icon.png" />
+    <EmbeddedResource Include="icon.png" />
     <Content Include="LICENSE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -88,7 +89,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>@ECHO off
-robocopy *.* "GameData/[x] Science!" /xd "GameData" /xf "*.zip"  /njh /njs /ndl /nc /ns /np /nfl /move
+robocopy . "GameData/[x] Science!" /xd "GameData" /xf "*.zip" /move /is
 "C:\Program Files\WinRAR\winrar.exe" a -r -afzip -ibck "[x] Science!.zip"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>

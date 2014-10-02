@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
 namespace ScienceChecklist {
-	internal sealed class ToolbarButton {
+	public sealed class ToolbarButton {
 
 		public ToolbarButton () {
 			_logger = new Logger(this);
@@ -40,7 +41,10 @@ namespace ScienceChecklist {
 			}
 
 			var texture = new Texture2D(38, 38, TextureFormat.ARGB32, false);
-			texture.SetPixels32(Enumerable.Repeat((Color32) Color.green, 38 * 38).ToArray());
+			
+			var iconStream = Assembly.GetExecutingAssembly ().GetManifestResourceStream ("ScienceChecklist.icon.png").ReadToEnd ();
+			
+			texture.LoadImage(iconStream);
 			texture.Apply();
 
 			_logger.Info("Adding mod application");
@@ -51,7 +55,7 @@ namespace ScienceChecklist {
 				OnDeHover,
 				OnEnable,
 				OnDisable,
-				ApplicationLauncher.AppScenes.SPACECENTER,
+				ApplicationLauncher.AppScenes.MAPVIEW | ApplicationLauncher.AppScenes.SPACECENTER,
 				texture);
 		}
 
