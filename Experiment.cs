@@ -26,6 +26,16 @@ namespace ScienceChecklist {
 
 		public float TotalScience { get { return ScienceExperiment.scienceCap * ScienceModifier; } }
 		public bool  IsComplete   { get { return Math.Abs (CompletedScience - TotalScience) < 0.01; } }
+		public string Description {
+			get {
+				return string.Format(
+					"{0} while {1} {2}{3}",
+					ScienceExperiment.experimentTitle,
+					ToString(Situation),
+					Body.theName,
+					string.IsNullOrEmpty(Biome) ? string.Empty : string.Format("'s {0}", Biome));
+			}
+		}
 
 		public float ScienceModifier {
 			get {

@@ -43,7 +43,7 @@ namespace ScienceChecklist {
 				null,
 				null,
 				null,
-				ApplicationLauncher.AppScenes.MAPVIEW | ApplicationLauncher.AppScenes.SPACECENTER,
+				ApplicationLauncher.AppScenes.ALWAYS,
 				texture);
 		}
 

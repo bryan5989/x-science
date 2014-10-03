@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -9,8 +10,13 @@ namespace ScienceChecklist {
 
 		public ScienceWindow () {
 			_logger = new Logger(this);
-			_rect = new Rect(0, 0, 400, 400);
+			_rect = new Rect(0, 0, 600, 500);
 			_scrollPos = new Vector2();
+			_filter = new ExperimentFilter();
+			_progressTexture = new Texture2D(13, 13, TextureFormat.ARGB32, false);
+			var iconStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ScienceChecklist.scienceProgress.png").ReadToEnd();
+			_progressTexture.LoadImage(iconStream);
+			_progressTexture.Apply();
 		}
 
 		#region PROPERTIES
@@ -34,81 +40,27 @@ namespace ScienceChecklist {
 		}
 
 		public void RefreshScience () {
-			if (ResearchAndDevelopment.Instance == null) {
-				_experiments = new List<Experiment>();
-			}
-
-			var exps = new List<Experiment>();
-
-			var experiments = ResearchAndDevelopment.GetExperimentIDs().Select(ResearchAndDevelopment.GetExperiment);
-			var bodies = FlightGlobals.Bodies;
-			var situations = Enum.GetValues (typeof (ExperimentSituations)).Cast<ExperimentSituations>();
-			var biomes = bodies.ToDictionary(x => x, ResearchAndDevelopment.GetBiomeTags);
-			
-			foreach (var experiment in experiments) {
-				foreach (var body in bodies) {
-					if (experiment.requireAtmosphere && !body.atmosphere) {
-						// If the whole planet doesn't have an atmosphere, then there's not much point continuing.
-						continue;
-					}
-
-					foreach (var situation in situations) {
-						if (situation == ExperimentSituations.SrfSplashed && !body.ocean) {
-							// Some planets don't have an ocean for us to be splashed down in.
-							continue;
-						}
-
-						if ((situation == ExperimentSituations.FlyingHigh || situation == ExperimentSituations.FlyingLow) && !body.atmosphere) {
-							// Some planets don't have an atmosphere for us to fly in.
-							continue;
-						}
-
-						// TODO: This doesn't filter out impossible experiments based on the altitude of biomes.
-						// e.g. Crew report while splashed down in the Highlands of Kerbin.
-
-						if (!experiment.IsAvailableWhile(situation, body)) {
-							// This experiment isn't valid for our current situation.
-							continue;
-						}
-
-						if (experiment.BiomeIsRelevantWhile(situation)) {
-							foreach (var biome in biomes[body]) {
-								exps.Add(new Experiment(experiment, body, situation, biome));
-							}
-						} else {
-							exps.Add(new Experiment(experiment, body, situation));
-						}
-					}
-				}
-			}
-
-			_experiments = exps;
-			_completeCount = _experiments.Count(x => x.IsComplete);
-			_availableCount = _experiments.Count(x => x.IsUnlocked);
-
-			_logger.Info("Found " + _experiments.Count + " sciences");
-			UpdateFilter();
+			_filter.RefreshExperiments();
 		}
 
 		#endregion
 
 		#region METHODS (PRIVATE)
-
-		private void UpdateFilter () {
-			_displayExperiments = _experiments
-				.Where(x => x.IsComplete == false)
-				.Where(x => x.IsUnlocked == true)
-				.OrderByDescending(x => x.TotalScience - x.CompletedScience)
-				.ToList ();
-		}
-
+		
 		private void DrawControls (int windowId) {
 			GUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-			GUILayout.Label(new GUIContent(string.Format("{0}/{1}({2}) experiments complete.", _completeCount, _availableCount, _experiments.Count)));
+			GUILayout.Label(new GUIContent(string.Format("{0}/{1} experiments complete.", _filter.CompleteCount, _filter.DisplayExperiments.Count)));
+
+			GUI.skin.horizontalScrollbarThumb.normal.background = _progressTexture;
+			GUI.skin.horizontalScrollbarThumb.fixedHeight = 13;
+			GUI.skin.horizontalScrollbar.fixedHeight = 13;
+			GUILayout.HorizontalScrollbar(0, _filter.CompleteCount / _filter.DisplayExperiments.Count, 0, 1, GUILayout.ExpandWidth(true), GUILayout.Height(13));
+
+			_filter.ShowLockedExperiments = GUILayout.Toggle(_filter.ShowLockedExperiments, new GUIContent("Show unresearched experiments"));
 			_scrollPos = GUILayout.BeginScrollView(_scrollPos, GUI.skin.scrollView);
 
-			foreach (var experiment in _displayExperiments) {
-				GUILayout.Label(new GUIContent(experiment.ToString ()), GUILayout.ExpandWidth(true));
+			foreach (var experiment in _filter.DisplayExperiments) {
+				DrawExperiment(experiment);
 			}
 
 			GUILayout.EndScrollView();
@@ -116,18 +68,24 @@ namespace ScienceChecklist {
 			GUI.DragWindow();
 		}
 
+		private void DrawExperiment (Experiment exp) {
+			GUI.skin.label.fontSize = 11;
+			GUI.skin.label.fontStyle = FontStyle.Italic;
+			GUILayout.BeginHorizontal(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+			GUILayout.Label(new GUIContent(exp.Description));
+			GUILayout.EndHorizontal();
+		}
+
 		#endregion
 
 		#region FIELDS
 
-		private Logger _logger;
 		private Rect _rect;
 		private Vector2 _scrollPos;
-		private IList<Experiment> _experiments;
-		private IList<Experiment> _displayExperiments;
-		private int _completeCount;
-		private int _availableCount;
-
+		private Texture2D _progressTexture;
+		
+		private readonly ExperimentFilter _filter;
+		private readonly Logger _logger;
 		private readonly int _windowId = UnityEngine.Random.Range(0, int.MaxValue);
 
 		#endregion
