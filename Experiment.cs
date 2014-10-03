@@ -22,7 +22,7 @@ namespace ScienceChecklist {
 		public string               Biome             { get { return _biome; } }
 
 		public float CompletedScience { get; private set; }
-		public bool  IsAvailable      { get; private set; }
+		public bool  IsUnlocked       { get; private set; }
 
 		public float TotalScience { get { return ScienceExperiment.scienceCap * ScienceModifier; } }
 		public bool  IsComplete   { get { return Math.Abs (CompletedScience - TotalScience) < 0.01; } }
@@ -53,10 +53,14 @@ namespace ScienceChecklist {
 		#region METHODS (PUBLIC)
 
 		public void Update () {
-			var subject = ResearchAndDevelopment.GetSubjectByID(ScienceExperiment.id + "@" + Body.name + Situation + Biome);
+			var subject = ResearchAndDevelopment.GetSubjects().SingleOrDefault(x => x.id == ScienceExperiment.id + "@" + Body.name + Situation + Biome);
+
+			IsUnlocked = ScienceExperiment.id == "evaReport" ||
+				ScienceExperiment.id == "surfaceSample" ||
+				ScienceExperiment.id == "crewReport" ||
+				PartLoader.Instance.parts.Any(x => ResearchAndDevelopment.PartModelPurchased(x) && x.partPrefab.Modules != null && x.partPrefab.Modules.OfType<ModuleScienceExperiment>().Any(y => y.experimentID == ScienceExperiment.id));
+			
 			CompletedScience = subject == null ? 0 : subject.science;
-#warning This isn't right.
-			IsAvailable = subject != null;
 		}
 
 		public override string ToString () {

@@ -84,21 +84,30 @@ namespace ScienceChecklist {
 
 			_experiments = exps;
 			_completeCount = _experiments.Count(x => x.IsComplete);
-			_availableCount = _experiments.Count(x => x.IsAvailable);
+			_availableCount = _experiments.Count(x => x.IsUnlocked);
 
 			_logger.Info("Found " + _experiments.Count + " sciences");
+			UpdateFilter();
 		}
 
 		#endregion
 
 		#region METHODS (PRIVATE)
-		
+
+		private void UpdateFilter () {
+			_displayExperiments = _experiments
+				.Where(x => x.IsComplete == false)
+				.Where(x => x.IsUnlocked == true)
+				.OrderByDescending(x => x.TotalScience - x.CompletedScience)
+				.ToList ();
+		}
+
 		private void DrawControls (int windowId) {
 			GUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
 			GUILayout.Label(new GUIContent(string.Format("{0}/{1}({2}) experiments complete.", _completeCount, _availableCount, _experiments.Count)));
 			_scrollPos = GUILayout.BeginScrollView(_scrollPos, GUI.skin.scrollView);
 
-			foreach (var experiment in _experiments) {
+			foreach (var experiment in _displayExperiments) {
 				GUILayout.Label(new GUIContent(experiment.ToString ()), GUILayout.ExpandWidth(true));
 			}
 
@@ -114,7 +123,8 @@ namespace ScienceChecklist {
 		private Logger _logger;
 		private Rect _rect;
 		private Vector2 _scrollPos;
-		private List<Experiment> _experiments;
+		private IList<Experiment> _experiments;
+		private IList<Experiment> _displayExperiments;
 		private int _completeCount;
 		private int _availableCount;
 

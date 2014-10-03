@@ -46,7 +46,7 @@ namespace ScienceChecklist {
 
 		private void Load () {
 			_button.Add();
-			_rndLoader = WaitForRnD();
+			_rndLoader = WaitForRnDAndPartLoader();
 			StartCoroutine(_rndLoader);
 		}
 
@@ -57,12 +57,18 @@ namespace ScienceChecklist {
 			}
 		}
 
-		private IEnumerator WaitForRnD () {
+		private IEnumerator WaitForRnDAndPartLoader () {
 			while (ResearchAndDevelopment.Instance == null) {
 				yield return 0;
 			}
 
 			_logger.Info("Science ready");
+
+			while (PartLoader.Instance == null) {
+				yield return 0;
+			}
+
+			_logger.Info("PartLoader ready");
 			_window.RefreshScience();
 			_rndLoader = null;
 		}
