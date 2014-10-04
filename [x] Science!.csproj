@@ -53,6 +53,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DisplayMode.cs" />
     <Compile Include="Experiment.cs" />
     <Compile Include="ExperimentFilter.cs" />
     <Compile Include="ScienceChecklistAddon.cs" />

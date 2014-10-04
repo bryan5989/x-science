@@ -7,19 +7,19 @@ namespace ScienceChecklist {
 	internal sealed class ExperimentFilter {
 		public ExperimentFilter () {
 			_logger = new Logger(this);
-			_showLocked = false;
+			_displayMode = DisplayMode.Unlocked;
 		}
 
 		public IList<Experiment> AllExperiments     { get { return _allExperiments; } }
 		public IList<Experiment> DisplayExperiments { get { return _displayExperiments; } }
 		public int               CompleteCount      { get; private set; }
 
-		public bool ShowLockedExperiments {
+		public DisplayMode DisplayMode {
 			get {
-				return _showLocked;
+				return _displayMode;
 			} set {
-				if (_showLocked != value) {
-					_showLocked = value;
+				if (_displayMode != value) {
+					_displayMode = value;
 					UpdateFilter();
 				}
 			}
@@ -89,8 +89,18 @@ namespace ScienceChecklist {
 				query = query.Where(x => x.IsComplete == _showComplete.Value);
 			}*/
 
-			if (_showLocked == false) {
-				query = query.Where(x => x.IsUnlocked == true);
+			switch (_displayMode) {
+				case DisplayMode.All:
+					break;
+				case DisplayMode.Unlocked:
+					query = query.Where(x => x.IsUnlocked == true);
+					break;
+				case DisplayMode.ActiveVessel:
+					//TODO: This
+					query = query.Where(x => false);
+					break;
+				default:
+					break;
 			}
 
 			_displayExperiments = query
@@ -98,7 +108,7 @@ namespace ScienceChecklist {
 				.ToList();
 		}
 
-		private bool _showLocked;
+		private DisplayMode _displayMode;
 
 		private IList<Experiment> _allExperiments;
 		private IList<Experiment> _displayExperiments;

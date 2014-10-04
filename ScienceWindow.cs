@@ -54,12 +54,16 @@ namespace ScienceChecklist {
 			GUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
 			GUILayout.Label(new GUIContent(string.Format("{0}/{1} experiments complete.", _filter.CompleteCount, _filter.DisplayExperiments.Count)));
 
-			GUI.skin.horizontalScrollbarThumb.normal.background = _progressTexture;
 			GUI.skin.horizontalScrollbarThumb.fixedHeight = 13;
 			GUI.skin.horizontalScrollbar.fixedHeight = 13;
 			ProgressBar ((float) _filter.CompleteCount / (float) _filter.DisplayExperiments.Count, GUILayout.ExpandWidth (true), GUILayout.Height(13));
 
-			_filter.ShowLockedExperiments = GUILayout.Toggle(_filter.ShowLockedExperiments, new GUIContent("Show unresearched experiments"));
+			_filter.DisplayMode = (DisplayMode) GUILayout.SelectionGrid((int) _filter.DisplayMode, new[] {
+				new GUIContent("Active vessel"),
+				new GUIContent("All unlocked"),
+				new GUIContent("All"),
+			}, 3, GUILayout.ExpandWidth(true));
+
 			_scrollPos = GUILayout.BeginScrollView(_scrollPos, GUI.skin.scrollView);
 
 			foreach (var experiment in _filter.DisplayExperiments) {
@@ -78,7 +82,10 @@ namespace ScienceChecklist {
 			GUILayout.BeginHorizontal(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
 			GUILayout.Label(new GUIContent(exp.Description));
 			GUILayout.FlexibleSpace();
+			GUILayout.BeginVertical();
+			GUILayout.Space(6);
 			ProgressBar(exp.CompletedScience / exp.TotalScience, GUILayout.Width(100));
+			GUILayout.EndVertical();
 			GUILayout.EndHorizontal();
 		}
 
