@@ -17,6 +17,9 @@ namespace ScienceChecklist {
 			var iconStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ScienceChecklist.scienceProgress.png").ReadToEnd();
 			_progressTexture.LoadImage(iconStream);
 			_progressTexture.Apply();
+			_emptyTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+			_emptyTexture.SetPixels(new[] { Color.clear });
+			_emptyTexture.Apply();
 		}
 
 		#region PROPERTIES
@@ -54,7 +57,7 @@ namespace ScienceChecklist {
 			GUI.skin.horizontalScrollbarThumb.normal.background = _progressTexture;
 			GUI.skin.horizontalScrollbarThumb.fixedHeight = 13;
 			GUI.skin.horizontalScrollbar.fixedHeight = 13;
-			GUILayout.HorizontalScrollbar(0, _filter.CompleteCount / _filter.DisplayExperiments.Count, 0, 1, GUILayout.ExpandWidth(true), GUILayout.Height(13));
+			ProgressBar ((float) _filter.CompleteCount / (float) _filter.DisplayExperiments.Count, GUILayout.ExpandWidth (true), GUILayout.Height(13));
 
 			_filter.ShowLockedExperiments = GUILayout.Toggle(_filter.ShowLockedExperiments, new GUIContent("Show unresearched experiments"));
 			_scrollPos = GUILayout.BeginScrollView(_scrollPos, GUI.skin.scrollView);
@@ -71,9 +74,17 @@ namespace ScienceChecklist {
 		private void DrawExperiment (Experiment exp) {
 			GUI.skin.label.fontSize = 11;
 			GUI.skin.label.fontStyle = FontStyle.Italic;
+			GUI.skin.label.normal.textColor = exp.IsComplete ? Color.green : Color.yellow;
 			GUILayout.BeginHorizontal(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
 			GUILayout.Label(new GUIContent(exp.Description));
+			GUILayout.FlexibleSpace();
+			ProgressBar(exp.CompletedScience / exp.TotalScience, GUILayout.Width(100));
 			GUILayout.EndHorizontal();
+		}
+
+		private void ProgressBar (float progress, params GUILayoutOption[] options) {
+			GUI.skin.horizontalScrollbarThumb.normal.background = progress == 0 ? _emptyTexture : _progressTexture;
+			GUILayout.HorizontalScrollbar(0, progress, 0, 1, options);
 		}
 
 		#endregion
@@ -82,8 +93,9 @@ namespace ScienceChecklist {
 
 		private Rect _rect;
 		private Vector2 _scrollPos;
+
 		private Texture2D _progressTexture;
-		
+		private readonly Texture2D _emptyTexture;
 		private readonly ExperimentFilter _filter;
 		private readonly Logger _logger;
 		private readonly int _windowId = UnityEngine.Random.Range(0, int.MaxValue);
