@@ -55,7 +55,8 @@ namespace ScienceChecklist {
 			
 			GUI.skin.horizontalScrollbarThumb.fixedHeight = 13;
 			GUI.skin.horizontalScrollbar.fixedHeight = 13;
-			ProgressBar ((float) _filter.CompleteCount / (float) _filter.DisplayExperiments.Count, GUILayout.ExpandWidth (true), GUILayout.Height(13));
+			var completePercent = _filter.DisplayExperiments.Count == 0 ? 1 : ((float) _filter.CompleteCount / (float) _filter.DisplayExperiments.Count);
+			ProgressBar (completePercent, GUILayout.ExpandWidth (true), GUILayout.Height(13));
 
 			GUILayout.BeginHorizontal();
 			GUILayout.Label(new GUIContent(string.Format("{0}/{1} complete.", _filter.CompleteCount, _filter.DisplayExperiments.Count)), GUILayout.Width(150));
