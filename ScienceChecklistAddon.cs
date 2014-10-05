@@ -20,6 +20,7 @@ namespace ScienceChecklist {
 			_button.Close += Button_Close;
 			GameEvents.onGUIApplicationLauncherReady.Add(Load);
 			GameEvents.onGUIApplicationLauncherDestroyed.Add(Unload);
+			GameEvents.OnScienceRecieved.Add(OnScienceReceived);
 		}
 
 		public void Start () {
@@ -55,6 +56,10 @@ namespace ScienceChecklist {
 			if (_rndLoader != null) {
 				StopCoroutine(_rndLoader);
 			}
+		}
+
+		private void OnScienceReceived (float scienceAmount, ScienceSubject subject) {
+			_window.RefreshScience();
 		}
 
 		private IEnumerator WaitForRnDAndPartLoader () {
