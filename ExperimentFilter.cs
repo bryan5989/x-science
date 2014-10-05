@@ -8,6 +8,8 @@ namespace ScienceChecklist {
 		public ExperimentFilter () {
 			_logger = new Logger(this);
 			_displayMode = DisplayMode.Unlocked;
+			_sortBy = SortOption.Experiment;
+			_hideComplete = false;
 		}
 
 		public IList<Experiment> AllExperiments     { get { return _allExperiments; } }
@@ -20,6 +22,30 @@ namespace ScienceChecklist {
 			} set {
 				if (_displayMode != value) {
 					_displayMode = value;
+					UpdateFilter();
+				}
+			}
+		}
+
+		public SortOption SortBy {
+			get {
+				return _sortBy;
+			}
+			set {
+				if (_sortBy != value) {
+					_sortBy = value;
+					UpdateFilter();
+				}
+			}
+		}
+
+		public bool HideComplete {
+			get {
+				return _hideComplete;
+			}
+			set {
+				if (_hideComplete != value) {
+					_hideComplete = value;
 					UpdateFilter();
 				}
 			}
@@ -77,17 +103,12 @@ namespace ScienceChecklist {
 			}
 
 			_allExperiments = exps;
-			CompleteCount = _allExperiments.Count(x => x.IsComplete);
 			UpdateFilter();
 		}
 
 		public void UpdateFilter () {
 			_logger.Trace("UpdateFilter");
 			var query = _allExperiments.AsEnumerable();
-
-			/*if (_showComplete != null) {
-				query = query.Where(x => x.IsComplete == _showComplete.Value);
-			}*/
 
 			switch (_displayMode) {
 				case DisplayMode.All:
@@ -103,12 +124,27 @@ namespace ScienceChecklist {
 					break;
 			}
 
-			_displayExperiments = query
-				.OrderByDescending(x => x.TotalScience - x.CompletedScience)
-				.ToList();
+			switch (_sortBy) {
+				case SortOption.Experiment:
+					query = query.OrderBy(x => x.ScienceExperiment.experimentTitle);
+					break;
+				case SortOption.Body:
+					query = query.OrderBy (x => x.Body.name).ThenBy(x => x.Biome);
+					break;
+				case SortOption.Science:
+					query = query.OrderByDescending (x => x.TotalScience);
+					break;
+				default:
+					break;
+			}
+
+			_displayExperiments = query.ToList();
+			CompleteCount = _displayExperiments.Count(x => x.IsComplete);
 		}
 
 		private DisplayMode _displayMode;
+		private SortOption _sortBy;
+		private bool _hideComplete;
 
 		private IList<Experiment> _allExperiments;
 		private IList<Experiment> _displayExperiments;

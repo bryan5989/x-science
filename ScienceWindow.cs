@@ -52,25 +52,39 @@ namespace ScienceChecklist {
 		
 		private void DrawControls (int windowId) {
 			GUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-			GUILayout.Label(new GUIContent(string.Format("{0}/{1} experiments complete.", _filter.CompleteCount, _filter.DisplayExperiments.Count)));
-
+			
 			GUI.skin.horizontalScrollbarThumb.fixedHeight = 13;
 			GUI.skin.horizontalScrollbar.fixedHeight = 13;
 			ProgressBar ((float) _filter.CompleteCount / (float) _filter.DisplayExperiments.Count, GUILayout.ExpandWidth (true), GUILayout.Height(13));
 
+			GUILayout.BeginHorizontal();
+			GUILayout.Label(new GUIContent(string.Format("{0}/{1} complete.", _filter.CompleteCount, _filter.DisplayExperiments.Count)), GUILayout.Width(150));
 			_filter.DisplayMode = (DisplayMode) GUILayout.SelectionGrid((int) _filter.DisplayMode, new[] {
 				new GUIContent("Active vessel"),
 				new GUIContent("All unlocked"),
 				new GUIContent("All"),
 			}, 3, GUILayout.ExpandWidth(true));
+			GUILayout.EndHorizontal();
+
+			GUILayout.BeginHorizontal();
+			GUILayout.BeginVertical(GUILayout.Width(150));
+			_filter.SortBy = (SortOption) GUILayout.SelectionGrid((int) _filter.SortBy, new[] {
+				new GUIContent("Experiment"),
+				new GUIContent("Body"),
+				new GUIContent("Science"),
+			}, 1, GUILayout.ExpandWidth(true));
+			GUILayout.FlexibleSpace();
+			_filter.HideComplete = GUILayout.Toggle(_filter.HideComplete, new GUIContent("Hide complete"));
+			GUILayout.EndVertical();
 
 			_scrollPos = GUILayout.BeginScrollView(_scrollPos, GUI.skin.scrollView);
 
-			foreach (var experiment in _filter.DisplayExperiments) {
+			foreach (var experiment in _filter.DisplayExperiments.Where (x => !_filter.HideComplete || !x.IsComplete)) {
 				DrawExperiment(experiment);
 			}
 
 			GUILayout.EndScrollView();
+			GUILayout.EndHorizontal();
 			GUILayout.EndVertical();
 			GUI.DragWindow();
 		}
@@ -84,7 +98,7 @@ namespace ScienceChecklist {
 			GUILayout.FlexibleSpace();
 			GUILayout.BeginVertical();
 			GUILayout.Space(6);
-			ProgressBar(exp.CompletedScience / exp.TotalScience, GUILayout.Width(100));
+			ProgressBar(exp.CompletedScience / exp.TotalScience, GUILayout.Width(75));
 			GUILayout.EndVertical();
 			GUILayout.EndHorizontal();
 		}

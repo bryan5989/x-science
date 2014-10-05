@@ -58,6 +58,7 @@
     <Compile Include="ExperimentFilter.cs" />
     <Compile Include="ScienceChecklistAddon.cs" />
     <Compile Include="ScienceWindow.cs" />
+    <Compile Include="SortOption.cs" />
     <Compile Include="StreamEx.cs" />
     <Compile Include="ToolbarButton.cs" />
     <Compile Include="Logger.cs" />
