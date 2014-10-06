@@ -2,6 +2,7 @@
     "NAME":"[x] Science!",
     "URL":"https://bitbucket.org/Bodrick/x-science/raw/tip/GameData/%5Bx%5D%20Science!/%5Bx%5D%20Science!.version",
     "DOWNLOAD":"https://bitbucket.org/Bodrick/x-science/downloads",
+	"CHANGE_LOG_URL":"https://bitbucket.org/Bodrick/x-science/raw/tip/CHANGES.md"
     "VERSION":
     {
         "MAJOR":0,

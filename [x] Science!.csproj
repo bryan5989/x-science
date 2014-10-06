@@ -63,6 +63,7 @@
     <Compile Include="ToolbarButton.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="CHANGES.md" />
     <None Include="Deploy.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
