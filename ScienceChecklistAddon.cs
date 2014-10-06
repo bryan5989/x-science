@@ -21,6 +21,9 @@ namespace ScienceChecklist {
 			GameEvents.onGUIApplicationLauncherReady.Add(Load);
 			GameEvents.onGUIApplicationLauncherDestroyed.Add(Unload);
 			GameEvents.OnScienceRecieved.Add(OnScienceReceived);
+			GameEvents.onVesselWasModified.Add(x => OnPartsChanged());
+			GameEvents.onVesselChange.Add(x => OnPartsChanged());
+			GameEvents.onEditorShipModified.Add(x => OnPartsChanged());
 		}
 
 		public void Start () {
@@ -60,6 +63,11 @@ namespace ScienceChecklist {
 
 		private void OnScienceReceived (float scienceAmount, ScienceSubject subject) {
 			_window.RefreshScience();
+		}
+
+		private void OnPartsChanged () {
+			_logger.Trace("OnPartsChanged");
+			_window.RefreshFilter();
 		}
 
 		private IEnumerator WaitForRnDAndPartLoader () {

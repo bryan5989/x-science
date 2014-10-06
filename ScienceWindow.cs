@@ -46,6 +46,10 @@ namespace ScienceChecklist {
 			_filter.RefreshExperiments();
 		}
 
+		public void RefreshFilter () {
+			_filter.UpdateFilter();
+		}
+
 		#endregion
 
 		#region METHODS (PRIVATE)

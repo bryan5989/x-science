@@ -117,8 +117,7 @@ namespace ScienceChecklist {
 					query = query.Where(x => x.IsUnlocked == true);
 					break;
 				case DisplayMode.ActiveVessel:
-					//TODO: This
-					query = query.Where(x => false);
+					query = ApplyActiveVesselFilter(query);
 					break;
 				default:
 					break;
@@ -140,6 +139,43 @@ namespace ScienceChecklist {
 
 			_displayExperiments = query.ToList();
 			CompleteCount = _displayExperiments.Count(x => x.IsComplete);
+		}
+
+		private IEnumerable<Experiment> ApplyActiveVesselFilter (IEnumerable<Experiment> src) {
+			_logger.Trace("ApplyActiveVesselFilter");
+			switch (HighLogic.LoadedScene) {
+				case GameScenes.FLIGHT:
+					var vessel = FlightGlobals.ActiveVessel;
+					return vessel == null
+						? Enumerable.Empty<Experiment> ()
+						: ApplyPartFilter(src, vessel.FindPartModulesImplementing<ModuleScienceExperiment>(), vessel.GetCrewCount() > 0);
+				case GameScenes.EDITOR:
+				case GameScenes.SPH:
+					return EditorLogic.startPod == null || EditorLogic.SortedShipList == null
+						? Enumerable.Empty<Experiment> ()
+						: ApplyPartFilter(src, EditorLogic.SortedShipList.SelectMany(x => x.Modules.OfType<ModuleScienceExperiment> ()), EditorLogic.SortedShipList.Any (x => x != null && x.CrewCapacity > 0));
+				case GameScenes.CREDITS:
+				case GameScenes.LOADING:
+				case GameScenes.LOADINGBUFFER:
+				case GameScenes.MAINMENU:
+				case GameScenes.PSYSTEM:
+				case GameScenes.SETTINGS:
+				case GameScenes.SPACECENTER:
+				case GameScenes.TRACKSTATION:
+				default:
+					// No active vessel for these scences.
+					return Enumerable.Empty<Experiment> ();
+			}
+		}
+
+		private IEnumerable<Experiment> ApplyPartFilter (IEnumerable<Experiment> src, IEnumerable<ModuleScienceExperiment> modules, bool hasCrew) {
+			_logger.Trace("ApplyPartFilter");
+			var experiments = modules
+				.Select(x => x.experimentID)
+				.Distinct();
+			return src.Where(x =>
+				(x.ScienceExperiment.id != "crewReport" && experiments.Contains(x.ScienceExperiment.id)) || // unmanned - crewReport needs to be explicitly ignored as we need crew for that experiment even though it's a module on the capsules
+				(hasCrew && (x.ScienceExperiment.id == "crewReport" || x.ScienceExperiment.id == "surfaceSample" || x.ScienceExperiment.id == "evaReport"))); // manned
 		}
 
 		private DisplayMode _displayMode;
