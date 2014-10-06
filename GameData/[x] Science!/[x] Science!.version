@@ -1,11 +1,11 @@
 {
-    "NAME":"x-science",
+    "NAME":"[x] Science!",
     "URL":"https://bitbucket.org/Bodrick/x-science/raw/tip/GameData/%5Bx%5D%20Science!/%5Bx%5D%20Science!.version",
     "DOWNLOAD":"https://bitbucket.org/Bodrick/x-science/downloads",
     "VERSION":
     {
         "MAJOR":0,
-        "MINOR":1,
+        "MINOR":2,
         "PATCH":0
     },
     "KSP_VERSION":
