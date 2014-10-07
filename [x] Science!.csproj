@@ -35,12 +35,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\Stock 0.24.2\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\Stock 0.25.0\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\..\Stock 0.24.2\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\Stock 0.25.0\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="MiniAVC">
       <HintPath>Libraries\MiniAVC-1.0.2.3\MiniAVC.dll</HintPath>
@@ -48,8 +46,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="UnityEngine">
-      <HintPath>..\..\Stock 0.24.2\KSP_Data\Managed\UnityEngine.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\Stock 0.25.0\KSP_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

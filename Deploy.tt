@@ -14,7 +14,7 @@ copy = new Action<System.IO.DirectoryInfo, System.IO.DirectoryInfo> ((src, targe
 	}
 });
 
-var targetDir = System.IO.Path.Combine ("..", "..", "Test 0.24.2");
+var targetDir = System.IO.Path.Combine ("..", "..", "Test 0.25.0");
 var existing = new System.IO.DirectoryInfo (System.IO.Path.Combine(targetDir, "GameData", "[x] Science!"));
 if (existing.Exists)
 {
