@@ -64,21 +64,18 @@ namespace ScienceChecklist {
 
 			GUILayout.BeginHorizontal();
 			GUILayout.Label(new GUIContent(string.Format("{0}/{1} complete.", _filter.CompleteCount, _filter.DisplayExperiments.Count)), GUILayout.Width(150));
-			_filter.DisplayMode = (DisplayMode) GUILayout.SelectionGrid((int) _filter.DisplayMode, new[] {
-				new GUIContent("Active vessel"),
-				new GUIContent("All unlocked"),
-				new GUIContent("All"),
-			}, 3, GUILayout.ExpandWidth(true));
+			GUILayout.Label(new GUIContent("Search:"));
+			_filter.Text = GUILayout.TextField(_filter.Text, GUILayout.ExpandWidth(true));
 			GUILayout.EndHorizontal();
 
 			GUILayout.BeginHorizontal();
 			GUILayout.BeginVertical(GUILayout.Width(150));
-			_filter.SortBy = (SortOption) GUILayout.SelectionGrid((int) _filter.SortBy, new[] {
-				new GUIContent("Experiment"),
-				new GUIContent("Body"),
-				new GUIContent("Science"),
-			}, 1, GUILayout.ExpandWidth(true));
 			GUILayout.FlexibleSpace();
+			_filter.DisplayMode = (DisplayMode) GUILayout.SelectionGrid((int) _filter.DisplayMode, new[] {
+				new GUIContent("Active vessel"),
+				new GUIContent("All unlocked"),
+				new GUIContent("All"),
+			}, 1, GUILayout.ExpandWidth(true));
 			_filter.HideComplete = GUILayout.Toggle(_filter.HideComplete, new GUIContent("Hide complete"));
 			GUILayout.EndVertical();
 
@@ -87,7 +84,7 @@ namespace ScienceChecklist {
 			foreach (var experiment in _filter.DisplayExperiments.Where (x => !_filter.HideComplete || !x.IsComplete)) {
 				DrawExperiment(experiment);
 			}
-
+			GUILayout.FlexibleSpace();
 			GUILayout.EndScrollView();
 			GUILayout.EndHorizontal();
 			GUILayout.EndVertical();

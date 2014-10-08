@@ -8,8 +8,8 @@ namespace ScienceChecklist {
 		public ExperimentFilter () {
 			_logger = new Logger(this);
 			_displayMode = DisplayMode.Unlocked;
-			_sortBy = SortOption.Experiment;
 			_hideComplete = false;
+			_text = string.Empty;
 		}
 
 		public IList<Experiment> AllExperiments     { get { return _allExperiments; } }
@@ -27,18 +27,6 @@ namespace ScienceChecklist {
 			}
 		}
 
-		public SortOption SortBy {
-			get {
-				return _sortBy;
-			}
-			set {
-				if (_sortBy != value) {
-					_sortBy = value;
-					UpdateFilter();
-				}
-			}
-		}
-
 		public bool HideComplete {
 			get {
 				return _hideComplete;
@@ -46,6 +34,18 @@ namespace ScienceChecklist {
 			set {
 				if (_hideComplete != value) {
 					_hideComplete = value;
+					UpdateFilter();
+				}
+			}
+		}
+
+		public string Text {
+			get {
+				return _text;
+			}
+			set {
+				if (_text != value) {
+					_text = value;
 					UpdateFilter();
 				}
 			}
@@ -109,7 +109,6 @@ namespace ScienceChecklist {
 		public void UpdateFilter () {
 			_logger.Trace("UpdateFilter");
 			var query = _allExperiments.AsEnumerable();
-
 			switch (_displayMode) {
 				case DisplayMode.All:
 					break;
@@ -123,22 +122,10 @@ namespace ScienceChecklist {
 					break;
 			}
 
-			switch (_sortBy) {
-				case SortOption.Experiment:
-					query = query.OrderBy(x => x.ScienceExperiment.experimentTitle);
-					break;
-				case SortOption.Body:
-					query = query.OrderBy (x => x.Body.name).ThenBy(x => x.Biome);
-					break;
-				case SortOption.Science:
-					query = query.OrderByDescending (x => x.TotalScience);
-					break;
-				default:
-					break;
-			}
-
+			CompleteCount = query.Count(x => x.IsComplete);
+			query = query.Where(x => string.IsNullOrEmpty(Text) ||
+				Text.Split(' ').All(y => x.Description.ToLowerInvariant().Contains(y.ToLowerInvariant())));
 			_displayExperiments = query.ToList();
-			CompleteCount = _displayExperiments.Count(x => x.IsComplete);
 		}
 
 		private IEnumerable<Experiment> ApplyActiveVesselFilter (IEnumerable<Experiment> src) {
@@ -179,8 +166,8 @@ namespace ScienceChecklist {
 		}
 
 		private DisplayMode _displayMode;
-		private SortOption _sortBy;
 		private bool _hideComplete;
+		private string _text;
 
 		private IList<Experiment> _allExperiments;
 		private IList<Experiment> _displayExperiments;

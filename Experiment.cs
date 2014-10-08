@@ -73,18 +73,6 @@ namespace ScienceChecklist {
 			CompletedScience = subject == null ? 0 : subject.science;
 		}
 
-		public override string ToString () {
-			return string.Format (
-				"{6} {0} while {1} {2}{3} for {4:0.0} / {5:0.0} science",
-				ScienceExperiment.experimentTitle,
-				ToString(Situation),
-				Body.theName,
-				string.IsNullOrEmpty(Biome) ? string.Empty : string.Format("'s {0}", Biome),
-				CompletedScience,
-				TotalScience,
-				IsComplete ? "[x]" : "[ ]");
-		}
-
 		#endregion
 
 		#region METHODS (PRIVATE)
