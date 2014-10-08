@@ -1,5 +1,11 @@
-﻿[x] Science!
+[x] Science!
 ============
+
+1.0
+---
+* Added search bar.
+* Added science values to experiment progress bars.
+* Fixed window remaining hidden when returning to the main menu.
 
 0.3
 ---
