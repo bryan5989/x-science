@@ -7,7 +7,6 @@ using UnityEngine;
 
 namespace ScienceChecklist {
 	internal sealed class ScienceWindow {
-
 		public ScienceWindow () {
 			_logger = new Logger(this);
 			_rect = new Rect(40, 40, 500, 400);
@@ -44,10 +43,12 @@ namespace ScienceChecklist {
 		}
 
 		public void RefreshScience () {
+			_logger.Trace("RefreshScience");
 			_filter.RefreshExperiments();
 		}
 
 		public void RefreshFilter () {
+			_logger.Trace("RefreshFilter");
 			_filter.UpdateFilter();
 		}
 

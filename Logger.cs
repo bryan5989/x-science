@@ -8,7 +8,8 @@ namespace ScienceChecklist {
 	/// <summary>
 	/// Class for helping with log messages.
 	/// </summary>
-	public sealed class Logger {
+	internal sealed class Logger {
+		private const LogLevel MaxLogLevel = LogLevel.Debug;
 
 		/// <summary>
 		/// Creates a new instance of the Logger class.
@@ -78,6 +79,9 @@ namespace ScienceChecklist {
 		/// <param name="message">The message to write.</param>
 		/// <param name="logLevel">The log level at which the log should be written.</param>
 		private void WriteMessage (string message, LogLevel logLevel) {
+			if (logLevel > MaxLogLevel) {
+				return;
+			}
 			var msg = GetMessage (message, logLevel);
 			switch (logLevel) {
 				case LogLevel.Fatal:
@@ -117,12 +121,12 @@ namespace ScienceChecklist {
 
 		private enum LogLevel
 		{
-			Fatal,
-			Error,
-			Warning,
-			Info,
-			Debug,
-			Trace,
+			Fatal = 0,
+			Error = 1,
+			Warning = 2,
+			Info = 3,
+			Debug = 4,
+			Trace = 5,
 		}
 
 		#endregion

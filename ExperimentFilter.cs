@@ -52,7 +52,9 @@ namespace ScienceChecklist {
 		}
 
 		public void RefreshExperiments () {
+			_logger.Trace("RefreshExperiments");
 			if (ResearchAndDevelopment.Instance == null) {
+				_logger.Debug("ResearchAndDevelopment not instantiated.");
 				_allExperiments = new List<Experiment>();
 				UpdateFilter();
 				return;

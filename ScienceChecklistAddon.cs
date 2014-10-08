@@ -49,6 +49,7 @@ namespace ScienceChecklist {
 		#region METHODS (PRIVATE)
 
 		private void Load () {
+			_logger.Trace("Load");
 			_button.Add();
 
 			_launcherVisible = true;
@@ -60,6 +61,7 @@ namespace ScienceChecklist {
 		}
 
 		private void Unload () {
+			_logger.Trace("Unload");
 			_button.Remove();
 			
 			ApplicationLauncher.Instance.RemoveOnShowCallback(Launcher_Show);
@@ -72,6 +74,7 @@ namespace ScienceChecklist {
 		}
 
 		private void OnScienceReceived (float scienceAmount, ScienceSubject subject) {
+			_logger.Trace("OnScienceReceived");
 			_window.RefreshScience();
 		}
 

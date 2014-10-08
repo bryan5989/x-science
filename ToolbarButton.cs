@@ -48,6 +48,7 @@ namespace ScienceChecklist {
 		}
 
 		public void Remove () {
+			_logger.Trace("Remove");
 			if (_button == null) {
 				_logger.Debug("Button already removed");
 				return;
