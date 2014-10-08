@@ -1,12 +1,18 @@
 [x] Science!
 ============
 
-Tired of wondering whether you need to go back to Minmus to get an EVA report while landed on the Greater Plains? Then **[x] Science!** is the mod for you!
+Tired of wondering whether you need to go back to Minmus to get an EVA report while landed on the Greater Flats? Then **[x] Science!** is the mod for you!
 
 **[x] Science!** is a science checklist plugin for Kerbal Space Program. It allows you to see what science experiments you have left to perform - and how much science you'll get for doing them.
 
+Installation
+------------
+
+Simply copy the GameData folder into your KSP directory.
+
 License
 ------
+
 **[x] Science!** is licensed under a [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license][1].
 
 You are free to:  
