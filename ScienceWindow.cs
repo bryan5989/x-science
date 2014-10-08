@@ -115,13 +115,14 @@ namespace ScienceChecklist {
 			GUI.skin.label.fontStyle = FontStyle.Italic;
 			GUI.skin.label.normal.textColor = exp.IsComplete ? Color.green : Color.yellow;
 			GUILayout.BeginHorizontal(GUILayout.ExpandWidth(true), GUILayout.MaxHeight(10));
-			GUILayout.Label(new GUIContent(exp.Description));
+			GUILayout.Label(new GUIContent(exp.Description), GUILayout.Height(7));
 			GUILayout.FlexibleSpace();
 			GUILayout.BeginVertical();
 			GUILayout.Space(6);
-			
-			ProgressBar(exp.CompletedScience, exp.TotalScience, true, GUILayout.Width(75));
+
+			ProgressBar(exp.CompletedScience, exp.TotalScience, true, GUILayout.Width(75), GUILayout.Height(7));
 			GUILayout.EndVertical();
+			GUILayout.Space(4);
 			GUILayout.EndHorizontal();
 		}
 
@@ -138,7 +139,7 @@ namespace ScienceChecklist {
 				style.alignment = TextAnchor.MiddleCenter;
 				style.fixedHeight = 0;
 				style.fixedWidth = 75;
-				style.contentOffset = new Vector2(0, -11);
+				style.contentOffset = new Vector2(0, -5);
 
 				GUILayout.Label(new GUIContent(string.Format("{0:0.#}  /  {1:0.#}", curr, total)), style, GUILayout.Height(0.1f));
 				
