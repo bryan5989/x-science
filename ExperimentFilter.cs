@@ -124,9 +124,9 @@ namespace ScienceChecklist {
 					break;
 			}
 
-			CompleteCount = query.Count(x => x.IsComplete);
 			query = query.Where(x => string.IsNullOrEmpty(Text) ||
 				Text.Split(' ').All(y => x.Description.ToLowerInvariant().Contains(y.ToLowerInvariant())));
+			CompleteCount = query.Count(x => x.IsComplete);
 			_displayExperiments = query.ToList();
 		}
 
