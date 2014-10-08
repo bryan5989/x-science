@@ -50,12 +50,22 @@ namespace ScienceChecklist {
 
 		private void Load () {
 			_button.Add();
+
+			_launcherVisible = true;
+			ApplicationLauncher.Instance.AddOnShowCallback(Launcher_Show);
+			ApplicationLauncher.Instance.AddOnHideCallback(Launcher_Hide);
+
 			_rndLoader = WaitForRnDAndPartLoader();
 			StartCoroutine(_rndLoader);
 		}
 
 		private void Unload () {
 			_button.Remove();
+			
+			ApplicationLauncher.Instance.RemoveOnShowCallback(Launcher_Show);
+			ApplicationLauncher.Instance.RemoveOnHideCallback(Launcher_Hide);
+			_launcherVisible = false;
+
 			if (_rndLoader != null) {
 				StopCoroutine(_rndLoader);
 			}
@@ -88,12 +98,31 @@ namespace ScienceChecklist {
 
 		private void Button_Open (object sender, EventArgs e) {
 			_logger.Trace("Button_Open");
-			_window.IsVisible = true;
+			_buttonClicked = true;
+			UpdateVisibility();
 		}
 
 		private void Button_Close (object sender, EventArgs e) {
 			_logger.Trace("Button_Close");
-			_window.IsVisible = false;
+			_buttonClicked = false;
+			UpdateVisibility();
+		}
+
+		private void Launcher_Show () {
+			_logger.Trace("Open");
+			_launcherVisible = true;
+			UpdateVisibility();
+		}
+
+		private void Launcher_Hide () {
+			_logger.Trace("Close");
+			_launcherVisible = false;
+			UpdateVisibility();
+		}
+
+		private void UpdateVisibility () {
+			_logger.Trace("UpdateVisibility");
+			_window.IsVisible = _launcherVisible && _buttonClicked;
 		}
 
 		#endregion
@@ -102,6 +131,8 @@ namespace ScienceChecklist {
 
 		private Logger _logger;
 		private ToolbarButton _button;
+		private bool _launcherVisible;
+		private bool _buttonClicked;
 		private ScienceWindow _window;
 		private IEnumerator _rndLoader;
 
