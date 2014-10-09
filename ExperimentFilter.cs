@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace ScienceChecklist {
@@ -62,12 +63,43 @@ namespace ScienceChecklist {
 
 			var exps = new List<Experiment>();
 
-			var experiments = ResearchAndDevelopment.GetExperimentIDs().Select(ResearchAndDevelopment.GetExperiment);
+			var experiments = PartLoader.Instance.parts
+				.SelectMany(x => x.partPrefab.FindModulesImplementing<ModuleScienceExperiment>())
+				.Select(x => new {
+					Module = x,
+					Experiment = ResearchAndDevelopment.GetExperiment(x.experimentID),
+				})
+				.GroupBy(x => x.Experiment)
+				.ToDictionary(x => x.Key, x => x.First().Module);
+
+			experiments[ResearchAndDevelopment.GetExperiment("evaReport")] = null;
+			experiments[ResearchAndDevelopment.GetExperiment("surfaceSample")] = null;
+
 			var bodies = FlightGlobals.Bodies;
 			var situations = Enum.GetValues(typeof(ExperimentSituations)).Cast<ExperimentSituations>();
 			var biomes = bodies.ToDictionary(x => x, ResearchAndDevelopment.GetBiomeTags);
 
-			foreach (var experiment in experiments) {
+			foreach (var experiment in experiments.Keys) {
+				
+				var sitMask = experiment.situationMask;
+				var biomeMask = experiment.biomeMask;
+				if (sitMask == 0 && experiments[experiment] != null) {
+					// OrbitalScience support
+					var sitMaskField = experiments[experiment].GetType().GetField("sitMask");
+					if (sitMaskField != null) {
+						sitMask = (uint) (int) sitMaskField.GetValue(experiments[experiment]);
+						_logger.Fatal("Setting sitMask to " + sitMask + " for " + experiment.experimentTitle);
+					}
+
+					if (biomeMask == 0) {
+						var biomeMaskField = experiments[experiment].GetType().GetField("bioMask");
+						if (biomeMaskField != null) {
+							biomeMask = (uint) (int) biomeMaskField.GetValue(experiments[experiment]);
+							_logger.Fatal("Setting biomeMask to " + biomeMask + " for " + experiment.experimentTitle);
+						}
+					}
+				}
+
 				foreach (var body in bodies) {
 					if (experiment.requireAtmosphere && !body.atmosphere) {
 						// If the whole planet doesn't have an atmosphere, then there's not much point continuing.
@@ -88,12 +120,12 @@ namespace ScienceChecklist {
 						// TODO: This doesn't filter out impossible experiments based on the altitude of biomes.
 						// e.g. Crew report while splashed down in the Highlands of Kerbin.
 
-						if (!experiment.IsAvailableWhile(situation, body)) {
+						if ((sitMask & (uint) situation) == 0) {
 							// This experiment isn't valid for our current situation.
 							continue;
 						}
 
-						if (experiment.BiomeIsRelevantWhile(situation)) {
+						if ((biomeMask & (uint) situation) != 0) {
 							foreach (var biome in biomes[body]) {
 								exps.Add(new Experiment(experiment, body, situation, biome));
 							}
