@@ -55,19 +55,36 @@ namespace ScienceChecklist {
 		#endregion
 
 		#region METHODS (PRIVATE)
-		
+
 		private void DrawControls (int windowId) {
 			GUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-			
+
+			var labelStyle = new GUIStyle(GUI.skin.label) {
+				fontSize = 11,
+				fontStyle = FontStyle.Italic,
+			};
+
+			var progressLabelStyle = new GUIStyle(GUI.skin.label) {
+				fontStyle = FontStyle.BoldAndItalic,
+				alignment = TextAnchor.MiddleCenter,
+				fontSize = 11,
+				normal = {
+					textColor = new Color(0.368f, 0.368f, 0.368f),
+				},
+			};
+
 			GUI.skin.horizontalScrollbarThumb.fixedHeight = 13;
 			GUI.skin.horizontalScrollbar.fixedHeight = 13;
 			var completePercent = _filter.DisplayExperiments.Count == 0 ? 1 : ((float) _filter.CompleteCount / (float) _filter.DisplayExperiments.Count);
+			
 			ProgressBar(
+				new Rect (10, 27, 480, 13),
 				_filter.DisplayExperiments.Count == 0 ? 1 : _filter.CompleteCount,
 				_filter.DisplayExperiments.Count == 0 ? 1 : _filter.DisplayExperiments.Count,
 				false,
-				GUILayout.ExpandWidth(true),
-				GUILayout.Height(13));
+				progressLabelStyle);
+
+			GUILayout.Space(20);
 
 			GUILayout.BeginHorizontal();
 
@@ -85,18 +102,18 @@ namespace ScienceChecklist {
 
 			GUILayout.EndHorizontal();
 
-			GUILayout.BeginHorizontal();
-
 			_scrollPos = GUILayout.BeginScrollView(_scrollPos, GUI.skin.scrollView);
+			var i = 0;
 
-			foreach (var experiment in _filter.DisplayExperiments.Where (x => !_filter.HideComplete || !x.IsComplete)) {
-				DrawExperiment(experiment);
+			foreach (var experiment in _filter.DisplayExperiments.Where(x => !_filter.HideComplete || !x.IsComplete)) {
+				var rect = new Rect(5, 20 * i, 500, 20);
+				DrawExperiment(experiment, rect, labelStyle, progressLabelStyle);
+				i++;
 			}
 
-			GUILayout.FlexibleSpace();
+			GUILayout.Space(20 * i);
 			GUILayout.EndScrollView();
-			GUILayout.EndHorizontal();
-
+			
 			GUILayout.BeginHorizontal();
 
 			_filter.DisplayMode = (DisplayMode) GUILayout.SelectionGrid((int) _filter.DisplayMode, new[] {
@@ -111,40 +128,33 @@ namespace ScienceChecklist {
 			GUI.DragWindow();
 		}
 
-		private void DrawExperiment (Experiment exp) {
-			GUI.skin.label.fontSize = 11;
-			GUI.skin.label.fontStyle = FontStyle.Italic;
-			GUI.skin.label.normal.textColor = exp.IsComplete ? Color.green : Color.yellow;
-			GUILayout.BeginHorizontal(GUILayout.ExpandWidth(true), GUILayout.MaxHeight(10));
-			GUILayout.Label(new GUIContent(exp.Description), GUILayout.Height(7));
-			GUILayout.FlexibleSpace();
-			GUILayout.BeginVertical();
-			GUILayout.Space(6);
+		private void DrawExperiment (Experiment exp, Rect rect, GUIStyle labelStyle, GUIStyle progressLabelStyle) {
+			labelStyle.normal.textColor = exp.IsComplete ? Color.green : Color.yellow;
+			var labelRect = new Rect(rect) {
+				y = rect.y + 3,
+			};
+			var progressRect = new Rect(rect) {
+				xMin = 395,
+				xMax = 460,
+				y = rect.y + 3,
+			};
 
-			ProgressBar(exp.CompletedScience, exp.TotalScience, true, GUILayout.Width(75), GUILayout.Height(7));
-			GUILayout.EndVertical();
-			GUILayout.Space(4);
-			GUILayout.EndHorizontal();
+			GUI.Label(labelRect, new GUIContent(exp.Description), labelStyle);
+			ProgressBar(progressRect, exp.CompletedScience, exp.TotalScience, true, progressLabelStyle);
 		}
 
-		private void ProgressBar (float curr, float total, bool showValues, params GUILayoutOption[] options) {
+		private void ProgressBar (Rect rect, float curr, float total, bool showValues, GUIStyle progressLabelStyle) {
 			GUI.skin.horizontalScrollbarThumb.normal.background = curr == 0 ? _emptyTexture : _progressTexture;
-			GUILayout.HorizontalScrollbar(0, curr / total, 0, 1, options);
+			var progressRect = new Rect(rect) {
+				y = rect.y + 1,
+			};
+			GUI.HorizontalScrollbar(progressRect, 0, curr / total, 0, 1);
 
 			if (showValues) {
-				GUILayout.BeginHorizontal(GUILayout.ExpandWidth(true));
-
-				var style = new GUIStyle(GUI.skin.label);
-				style.fontStyle = FontStyle.BoldAndItalic;
-				style.normal.textColor = new Color(0.368f, 0.368f, 0.368f);
-				style.alignment = TextAnchor.MiddleCenter;
-				style.fixedHeight = 0;
-				style.fixedWidth = 75;
-				style.contentOffset = new Vector2(0, -5);
-
-				GUILayout.Label(new GUIContent(string.Format("{0:0.#}  /  {1:0.#}", curr, total)), style, GUILayout.Height(0.1f));
-				
-				GUILayout.EndHorizontal();
+				var labelRect = new Rect(rect) {
+					y = rect.y - 1,
+				};
+				GUI.Label(labelRect, new GUIContent(string.Format("{0:0.#}  /  {1:0.#}", curr, total)), progressLabelStyle);
 			}
 		}
 
@@ -154,8 +164,8 @@ namespace ScienceChecklist {
 
 		private Rect _rect;
 		private Vector2 _scrollPos;
-
-		private Texture2D _progressTexture;
+		
+		private readonly Texture2D _progressTexture;
 		private readonly Texture2D _emptyTexture;
 		private readonly ExperimentFilter _filter;
 		private readonly Logger _logger;

@@ -23,9 +23,9 @@ namespace ScienceChecklist {
 
 		public float CompletedScience { get; private set; }
 		public bool  IsUnlocked       { get; private set; }
+		public float TotalScience     { get; private set; }
+		public bool  IsComplete       { get; private set; }
 
-		public float TotalScience { get { return ScienceExperiment.scienceCap * ScienceModifier; } }
-		public bool  IsComplete   { get { return Math.Abs (CompletedScience - TotalScience) < 0.01; } }
 		public string Description {
 			get {
 				return string.Format(
@@ -69,8 +69,10 @@ namespace ScienceChecklist {
 				ScienceExperiment.id == "surfaceSample" ||
 				ScienceExperiment.id == "crewReport" ||
 				PartLoader.Instance.parts.Any(x => ResearchAndDevelopment.PartModelPurchased(x) && x.partPrefab.Modules != null && x.partPrefab.Modules.OfType<ModuleScienceExperiment>().Any(y => y.experimentID == ScienceExperiment.id));
-			
+
 			CompletedScience = subject == null ? 0 : subject.science;
+			TotalScience = ScienceExperiment.scienceCap * ScienceModifier;
+			IsComplete = Math.Abs(CompletedScience - TotalScience) < 0.01;
 		}
 
 		#endregion

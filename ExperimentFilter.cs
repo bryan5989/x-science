@@ -124,6 +124,8 @@ namespace ScienceChecklist {
 					break;
 			}
 
+			query = query.OrderBy(x => x.TotalScience);
+
 			var search = Text.Split(' ').Select (x => x.Split('|')).ToList ();
 
 			query = query.Where(x => string.IsNullOrEmpty(Text) ||
