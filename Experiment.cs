@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace ScienceChecklist {
 	internal sealed class Experiment {
@@ -10,7 +11,7 @@ namespace ScienceChecklist {
 			_body = body;
 			_situation = situation;
 			_biome = biome;
-
+			FormattedBiome = BiomeToString(biome);
 			Update();
 		}
 
@@ -21,10 +22,11 @@ namespace ScienceChecklist {
 		public ExperimentSituations Situation         { get { return _situation; } }
 		public string               Biome             { get { return _biome; } }
 
-		public float CompletedScience { get; private set; }
-		public bool  IsUnlocked       { get; private set; }
-		public float TotalScience     { get; private set; }
-		public bool  IsComplete       { get; private set; }
+		public string FormattedBiome   { get; private set; }
+		public float  CompletedScience { get; private set; }
+		public bool   IsUnlocked       { get; private set; }
+		public float  TotalScience     { get; private set; }
+		public bool   IsComplete       { get; private set; }
 
 		public string Description {
 			get {
@@ -33,7 +35,7 @@ namespace ScienceChecklist {
 					ScienceExperiment.experimentTitle,
 					ToString(Situation),
 					Body.theName,
-					string.IsNullOrEmpty(Biome) ? string.Empty : string.Format("'s {0}", Biome));
+					string.IsNullOrEmpty(FormattedBiome) ? string.Empty : string.Format("'s {0}", FormattedBiome));
 			}
 		}
 
@@ -96,6 +98,10 @@ namespace ScienceChecklist {
 				default:
 					return situation.ToString();
 			}
+		}
+
+		private string BiomeToString (string biome) {
+			return Regex.Replace(biome ?? string.Empty, "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1").Trim();
 		}
 
 		#endregion
