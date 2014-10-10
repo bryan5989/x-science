@@ -41,27 +41,6 @@ namespace ScienceChecklist {
 			}
 		}
 
-		public float ScienceModifier {
-			get {
-				switch (Situation) {
-					case ExperimentSituations.FlyingHigh:
-						return Body.scienceValues.FlyingLowDataValue;
-					case ExperimentSituations.FlyingLow:
-						return Body.scienceValues.FlyingLowDataValue;
-					case ExperimentSituations.InSpaceHigh:
-						return Body.scienceValues.InSpaceLowDataValue;
-					case ExperimentSituations.InSpaceLow:
-						return Body.scienceValues.InSpaceLowDataValue;
-					case ExperimentSituations.SrfLanded:
-						return Body.scienceValues.LandedDataValue;
-					case ExperimentSituations.SrfSplashed:
-						return Body.scienceValues.SplashedDataValue;
-					default:
-						return 1;
-				}
-			}
-		}
-
 		#endregion
 
 		#region METHODS (PUBLIC)
@@ -72,9 +51,8 @@ namespace ScienceChecklist {
 				ScienceExperiment.id == "crewReport" ||
 				PartLoader.Instance.parts.Any(x => ResearchAndDevelopment.PartModelPurchased(x) && x.partPrefab.Modules != null && x.partPrefab.Modules.OfType<ModuleScienceExperiment>().Any(y => y.experimentID == ScienceExperiment.id));
 
-			CompletedScience = _subject.science;
-			TotalScience = _subject.scienceCap * Body.scienceValues.RecoveryValue;
-			//TotalScience = ScienceExperiment.baseValue * ScienceModifier;
+			CompletedScience = _subject.science * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier;
+			TotalScience = _subject.scienceCap * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier;
 			IsComplete = Math.Abs(CompletedScience - TotalScience) < 0.01;
 		}
 
