@@ -90,7 +90,7 @@ namespace ScienceChecklist {
 				case ExperimentSituations.InSpaceHigh:
 					return "in space high over";
 				case ExperimentSituations.InSpaceLow:
-					return "in space low over";
+					return "in space near";
 				case ExperimentSituations.SrfLanded:
 					return "landed at";
 				case ExperimentSituations.SrfSplashed:
