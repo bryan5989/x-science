@@ -113,6 +113,11 @@ namespace ScienceChecklist {
 							continue;
 						}
 
+						if (situation == ExperimentSituations.SrfLanded && (body.name == "Jool" || body.name == "Sun")) {
+							// Jool and the Sun don't have a surface.
+							continue;
+						}
+
 						if ((situation == ExperimentSituations.FlyingHigh || situation == ExperimentSituations.FlyingLow) && !body.atmosphere) {
 							// Some planets don't have an atmosphere for us to fly in.
 							continue;
