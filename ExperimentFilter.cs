@@ -88,14 +88,14 @@ namespace ScienceChecklist {
 					var sitMaskField = experiments[experiment].GetType().GetField("sitMask");
 					if (sitMaskField != null) {
 						sitMask = (uint) (int) sitMaskField.GetValue(experiments[experiment]);
-						_logger.Fatal("Setting sitMask to " + sitMask + " for " + experiment.experimentTitle);
+						_logger.Debug("Setting sitMask to " + sitMask + " for " + experiment.experimentTitle);
 					}
 
 					if (biomeMask == 0) {
 						var biomeMaskField = experiments[experiment].GetType().GetField("bioMask");
 						if (biomeMaskField != null) {
 							biomeMask = (uint) (int) biomeMaskField.GetValue(experiments[experiment]);
-							_logger.Fatal("Setting biomeMask to " + biomeMask + " for " + experiment.experimentTitle);
+							_logger.Debug("Setting biomeMask to " + biomeMask + " for " + experiment.experimentTitle);
 						}
 					}
 				}
