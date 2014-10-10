@@ -78,6 +78,7 @@ namespace ScienceChecklist {
 			var bodies = FlightGlobals.Bodies;
 			var situations = Enum.GetValues(typeof(ExperimentSituations)).Cast<ExperimentSituations>();
 			var biomes = bodies.ToDictionary(x => x, ResearchAndDevelopment.GetBiomeTags);
+			var subjects = ResearchAndDevelopment.GetSubjects();
 
 			foreach (var experiment in experiments.Keys) {
 				
@@ -125,12 +126,19 @@ namespace ScienceChecklist {
 							continue;
 						}
 
-						if ((biomeMask & (uint) situation) != 0) {
+						if (biomes[body].Any() && (biomeMask & (uint) situation) != 0) {
 							foreach (var biome in biomes[body]) {
-								exps.Add(new Experiment(experiment, body, situation, biome));
+								var subject = subjects
+									.Where (x => x.id == GetId(experiment, body, situation, biome))
+									.SingleOrDefault () ?? new ScienceSubject(experiment, situation, body, biome);
+
+								exps.Add(new Experiment(experiment, subject, body, situation, biome));
 							}
 						} else {
-							exps.Add(new Experiment(experiment, body, situation));
+							var subject = subjects
+								.Where(x => x.id == GetId(experiment, body, situation))
+								.SingleOrDefault() ?? new ScienceSubject(experiment, situation, body);
+							exps.Add(new Experiment(experiment, subject, body, situation));
 						}
 					}
 				}
@@ -165,6 +173,10 @@ namespace ScienceChecklist {
 
 			CompleteCount = query.Count(x => x.IsComplete);
 			_displayExperiments = query.ToList();
+		}
+
+		private string GetId (ScienceExperiment exp, CelestialBody body, ExperimentSituations sit, string biome = null) {
+			return string.Format("{0}@{1}{2}{3}", exp.id, body.name, sit, biome ?? string.Empty);
 		}
 
 		private IEnumerable<Experiment> ApplyActiveVesselFilter (IEnumerable<Experiment> src) {

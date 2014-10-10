@@ -6,8 +6,9 @@ using System.Text.RegularExpressions;
 
 namespace ScienceChecklist {
 	internal sealed class Experiment {
-		public Experiment (ScienceExperiment experiment, CelestialBody body, ExperimentSituations situation, string biome = null) {
+		public Experiment (ScienceExperiment experiment, ScienceSubject subject, CelestialBody body, ExperimentSituations situation, string biome = null) {
 			_experiment = experiment;
+			_subject = subject;
 			_body = body;
 			_situation = situation;
 			_biome = biome;
@@ -18,6 +19,7 @@ namespace ScienceChecklist {
 		#region PROPERTIES
 
 		public ScienceExperiment    ScienceExperiment { get { return _experiment; } }
+		public ScienceSubject       ScienceSubject    { get { return _subject; } }
 		public CelestialBody        Body              { get { return _body; } }
 		public ExperimentSituations Situation         { get { return _situation; } }
 		public string               Biome             { get { return _biome; } }
@@ -43,11 +45,11 @@ namespace ScienceChecklist {
 			get {
 				switch (Situation) {
 					case ExperimentSituations.FlyingHigh:
-						return Body.scienceValues.FlyingHighDataValue;
+						return Body.scienceValues.FlyingLowDataValue;
 					case ExperimentSituations.FlyingLow:
 						return Body.scienceValues.FlyingLowDataValue;
 					case ExperimentSituations.InSpaceHigh:
-						return Body.scienceValues.InSpaceHighDataValue;
+						return Body.scienceValues.InSpaceLowDataValue;
 					case ExperimentSituations.InSpaceLow:
 						return Body.scienceValues.InSpaceLowDataValue;
 					case ExperimentSituations.SrfLanded:
@@ -65,15 +67,14 @@ namespace ScienceChecklist {
 		#region METHODS (PUBLIC)
 
 		public void Update () {
-			var subject = ResearchAndDevelopment.GetSubjects().SingleOrDefault(x => x.id == ScienceExperiment.id + "@" + Body.name + Situation + Biome);
-
 			IsUnlocked = ScienceExperiment.id == "evaReport" ||
 				ScienceExperiment.id == "surfaceSample" ||
 				ScienceExperiment.id == "crewReport" ||
 				PartLoader.Instance.parts.Any(x => ResearchAndDevelopment.PartModelPurchased(x) && x.partPrefab.Modules != null && x.partPrefab.Modules.OfType<ModuleScienceExperiment>().Any(y => y.experimentID == ScienceExperiment.id));
 
-			CompletedScience = subject == null ? 0 : subject.science;
-			TotalScience = ScienceExperiment.scienceCap * ScienceModifier;
+			CompletedScience = _subject.science;
+			TotalScience = _subject.scienceCap * Body.scienceValues.RecoveryValue;
+			//TotalScience = ScienceExperiment.baseValue * ScienceModifier;
 			IsComplete = Math.Abs(CompletedScience - TotalScience) < 0.01;
 		}
 
@@ -109,6 +110,7 @@ namespace ScienceChecklist {
 		#region FIELDS
 
 		private readonly ScienceExperiment _experiment;
+		private readonly ScienceSubject _subject;
 		private readonly CelestialBody _body;
 		private readonly ExperimentSituations _situation;
 		private readonly string _biome;
