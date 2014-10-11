@@ -12,6 +12,7 @@ namespace ScienceChecklist {
 		#region METHODS (PUBLIC)
 
 		public void Awake () {
+			_active = false;
 			_logger = new Logger(this);
 			_logger.Trace("Awake");
 			_window = new ScienceWindow();
@@ -50,6 +51,15 @@ namespace ScienceChecklist {
 
 		private void Load () {
 			_logger.Trace("Load");
+			if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER && HighLogic.CurrentGame.Mode != Game.Modes.SCIENCE_SANDBOX) {
+				_logger.Info("Game type is " + HighLogic.CurrentGame.Mode + ". Deactivating.");
+				_active = false;
+				return;
+			}
+
+			_logger.Info("Game type is " + HighLogic.CurrentGame.Mode + ". Activating.");
+			_active = true;
+
 			_button.Add();
 
 			_launcherVisible = true;
@@ -61,7 +71,12 @@ namespace ScienceChecklist {
 		}
 
 		private void Unload () {
+			if (!_active) {
+				return;
+			}
 			_logger.Trace("Unload");
+			_active = false;
+
 			_button.Remove();
 			
 			ApplicationLauncher.Instance.RemoveOnShowCallback(Launcher_Show);
@@ -74,16 +89,26 @@ namespace ScienceChecklist {
 		}
 
 		private void OnScienceReceived (float scienceAmount, ScienceSubject subject) {
+			if (!_active) {
+				return;
+			}
 			_logger.Trace("OnScienceReceived");
 			_window.RefreshScience();
 		}
 
 		private void OnPartsChanged () {
+			if (!_active) {
+				return;
+			}
 			_logger.Trace("OnPartsChanged");
 			_window.RefreshFilter();
 		}
 
 		private IEnumerator WaitForRnDAndPartLoader () {
+			if (!_active) {
+				yield break;
+			}
+
 			while (ResearchAndDevelopment.Instance == null) {
 				yield return 0;
 			}
@@ -100,30 +125,45 @@ namespace ScienceChecklist {
 		}
 
 		private void Button_Open (object sender, EventArgs e) {
+			if (!_active) {
+				return;
+			}
 			_logger.Trace("Button_Open");
 			_buttonClicked = true;
 			UpdateVisibility();
 		}
 
 		private void Button_Close (object sender, EventArgs e) {
+			if (!_active) {
+				return;
+			}
 			_logger.Trace("Button_Close");
 			_buttonClicked = false;
 			UpdateVisibility();
 		}
 
 		private void Launcher_Show () {
+			if (!_active) {
+				return;
+			}
 			_logger.Trace("Open");
 			_launcherVisible = true;
 			UpdateVisibility();
 		}
 
 		private void Launcher_Hide () {
+			if (!_active) {
+				return;
+			}
 			_logger.Trace("Close");
 			_launcherVisible = false;
 			UpdateVisibility();
 		}
 
 		private void UpdateVisibility () {
+			if (!_active) {
+				return;
+			}
 			_logger.Trace("UpdateVisibility");
 			_window.IsVisible = _launcherVisible && _buttonClicked;
 		}
@@ -132,6 +172,7 @@ namespace ScienceChecklist {
 
 		#region FIELDS
 
+		private bool _active;
 		private Logger _logger;
 		private ToolbarButton _button;
 		private bool _launcherVisible;
