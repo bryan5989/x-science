@@ -31,8 +31,7 @@ namespace ScienceChecklist {
 		public bool HideComplete {
 			get {
 				return _hideComplete;
-			}
-			set {
+			} set {
 				if (_hideComplete != value) {
 					_hideComplete = value;
 					UpdateFilter();
@@ -43,10 +42,20 @@ namespace ScienceChecklist {
 		public string Text {
 			get {
 				return _text;
-			}
-			set {
+			} set {
 				if (_text != value) {
 					_text = value;
+					UpdateFilter();
+				}
+			}
+		}
+
+		public Situation CurrentSituation {
+			get {
+				return _situation;
+			} set {
+				if (_situation != value) {
+					_situation = value;
 					UpdateFilter();
 				}
 			}
@@ -137,13 +146,13 @@ namespace ScienceChecklist {
 									.Where (x => x.id == GetId(experiment, body, situation, biome))
 									.SingleOrDefault () ?? new ScienceSubject(experiment, situation, body, biome);
 
-								exps.Add(new Experiment(experiment, subject, body, situation, biome));
+								exps.Add(new Experiment(experiment, subject, new Situation(body, situation, biome)));
 							}
 						} else {
 							var subject = subjects
 								.Where(x => x.id == GetId(experiment, body, situation))
 								.SingleOrDefault() ?? new ScienceSubject(experiment, situation, body);
-							exps.Add(new Experiment(experiment, subject, body, situation));
+							exps.Add(new Experiment(experiment, subject, new Situation(body, situation)));
 						}
 					}
 				}
@@ -224,6 +233,7 @@ namespace ScienceChecklist {
 		private DisplayMode _displayMode;
 		private bool _hideComplete;
 		private string _text;
+		private Situation _situation;
 
 		private IList<Experiment> _allExperiments;
 		private IList<Experiment> _displayExperiments;

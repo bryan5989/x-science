@@ -56,6 +56,32 @@ namespace ScienceChecklist {
 			_filter.UpdateFilter();
 		}
 
+		public void RecalculateSituation () {
+			_logger.Trace("RecalculateSituation");
+			var vessel = FlightGlobals.ActiveVessel;
+			if (vessel == null) {
+				if (_filter.CurrentSituation != null) {
+					_filter.CurrentSituation = null;
+				}
+				return;
+			}
+
+			var body = vessel.mainBody;
+			var situation = ScienceUtil.GetExperimentSituation(vessel);
+
+			var biome = ScienceUtil.GetExperimentBiome(body, vessel.latitude, vessel.longitude);
+
+			if (!string.IsNullOrEmpty(vessel.landedAt)) {
+				biome = vessel.landedAt;
+			}
+
+			if (_filter.CurrentSituation != null && _filter.CurrentSituation.Biome == biome && _filter.CurrentSituation.ExperimentSituation == situation && _filter.CurrentSituation.Body == body) {
+				return;
+			}
+
+			_filter.CurrentSituation = new Situation(body, situation, biome);
+		}
+
 		#endregion
 
 		#region METHODS (PRIVATE)
@@ -119,6 +145,10 @@ namespace ScienceChecklist {
 			}
 
 			GUILayout.EndHorizontal();
+
+			if (_filter.CurrentSituation != null) {
+				GUILayout.Label(new GUIContent("Currently " + _filter.CurrentSituation.Description));
+			}
 
 			_scrollPos = GUILayout.BeginScrollView(_scrollPos, GUI.skin.scrollView);
 			var i = 0;
@@ -184,7 +214,7 @@ namespace ScienceChecklist {
 
 		private Rect _rect;
 		private Vector2 _scrollPos;
-		
+
 		private readonly Texture2D _progressTexture;
 		private readonly Texture2D _completeTexture;
 		private readonly Texture2D _emptyTexture;

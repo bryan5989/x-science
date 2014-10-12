@@ -6,13 +6,10 @@ using System.Text.RegularExpressions;
 
 namespace ScienceChecklist {
 	internal sealed class Experiment {
-		public Experiment (ScienceExperiment experiment, ScienceSubject subject, CelestialBody body, ExperimentSituations situation, string biome = null) {
+		public Experiment (ScienceExperiment experiment, ScienceSubject subject, Situation situation) {
 			_experiment = experiment;
 			_subject = subject;
-			_body = body;
 			_situation = situation;
-			_biome = biome;
-			FormattedBiome = BiomeToString(biome);
 			Update();
 		}
 
@@ -20,9 +17,7 @@ namespace ScienceChecklist {
 
 		public ScienceExperiment    ScienceExperiment { get { return _experiment; } }
 		public ScienceSubject       ScienceSubject    { get { return _subject; } }
-		public CelestialBody        Body              { get { return _body; } }
-		public ExperimentSituations Situation         { get { return _situation; } }
-		public string               Biome             { get { return _biome; } }
+		public Situation            Situation         { get { return _situation; } }
 
 		public string FormattedBiome   { get; private set; }
 		public float  CompletedScience { get; private set; }
@@ -33,11 +28,9 @@ namespace ScienceChecklist {
 		public string Description {
 			get {
 				return string.Format(
-					"{0} while {1} {2}{3}",
+					"{0} while {1}",
 					ScienceExperiment.experimentTitle,
-					ToString(Situation),
-					Body.theName,
-					string.IsNullOrEmpty(FormattedBiome) ? string.Empty : string.Format("'s {0}", FormattedBiome));
+					Situation.Description);
 			}
 		}
 
@@ -58,40 +51,11 @@ namespace ScienceChecklist {
 
 		#endregion
 
-		#region METHODS (PRIVATE)
-
-		private string ToString (ExperimentSituations situation) {
-			switch (situation) {
-				case ExperimentSituations.FlyingHigh:
-					return "flying high over";
-				case ExperimentSituations.FlyingLow:
-					return "flying low over";
-				case ExperimentSituations.InSpaceHigh:
-					return "in space high over";
-				case ExperimentSituations.InSpaceLow:
-					return "in space near";
-				case ExperimentSituations.SrfLanded:
-					return "landed at";
-				case ExperimentSituations.SrfSplashed:
-					return "splashed down at";
-				default:
-					return situation.ToString();
-			}
-		}
-
-		private string BiomeToString (string biome) {
-			return Regex.Replace(biome ?? string.Empty, "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1").Trim();
-		}
-
-		#endregion
-
 		#region FIELDS
 
 		private readonly ScienceExperiment _experiment;
 		private readonly ScienceSubject _subject;
-		private readonly CelestialBody _body;
-		private readonly ExperimentSituations _situation;
-		private readonly string _biome;
+		private readonly Situation _situation;
 
 		#endregion
 	}

@@ -19,6 +19,7 @@ namespace ScienceChecklist {
 			_button = new ToolbarButton();
 			_button.Open += Button_Open;
 			_button.Close += Button_Close;
+			_nextSituationUpdate = DateTime.Now;
 			GameEvents.onGUIApplicationLauncherReady.Add(Load);
 			GameEvents.onGUIApplicationLauncherDestroyed.Add(Unload);
 			GameEvents.OnScienceRecieved.Add(OnScienceReceived);
@@ -39,6 +40,16 @@ namespace ScienceChecklist {
 		}
 
 		public void Update () {
+			if (!_active) {
+				return;
+			}
+
+			if (_nextSituationUpdate > DateTime.Now) {
+				return;
+			}
+
+			_nextSituationUpdate = DateTime.Now.AddSeconds(0.5);
+			_window.RecalculateSituation();
 		}
 
 		public void OnGUI () {
@@ -172,6 +183,7 @@ namespace ScienceChecklist {
 
 		#region FIELDS
 
+		private DateTime _nextSituationUpdate;
 		private bool _active;
 		private Logger _logger;
 		private ToolbarButton _button;
