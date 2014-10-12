@@ -16,6 +16,10 @@ namespace ScienceChecklist {
 			var iconStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ScienceChecklist.scienceProgress.png").ReadToEnd();
 			_progressTexture.LoadImage(iconStream);
 			_progressTexture.Apply();
+			_completeTexture = new Texture2D(13, 13, TextureFormat.ARGB32, false);
+			iconStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ScienceChecklist.scienceComplete.png").ReadToEnd();
+			_completeTexture.LoadImage(iconStream);
+			_completeTexture.Apply();
 			_emptyTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
 			_emptyTexture.SetPixels(new[] { Color.clear });
 			_emptyTexture.Apply();
@@ -64,12 +68,24 @@ namespace ScienceChecklist {
 				fontStyle = FontStyle.Italic,
 			};
 
-			var progressLabelStyle = new GUIStyle(GUI.skin.label) {
+			var emptyLabelStyle = new GUIStyle(GUI.skin.label) {
 				fontStyle = FontStyle.BoldAndItalic,
 				alignment = TextAnchor.MiddleCenter,
 				fontSize = 11,
 				normal = {
-					textColor = new Color(0.368f, 0.368f, 0.368f),
+					textColor = new Color(0.337f, 0.357f, 0.357f),
+				},
+			};
+
+			var progressLabelStyle = new GUIStyle(emptyLabelStyle) {
+				normal = {
+					textColor = new Color(0.004f, 0.318f, 0.349f),
+				},
+			};
+
+			var completeLabelStyle = new GUIStyle(progressLabelStyle) {
+				normal = {
+					textColor = new Color(0.035f, 0.420f, 0.114f),
 				},
 			};
 
@@ -82,7 +98,9 @@ namespace ScienceChecklist {
 				_filter.DisplayExperiments.Count == 0 ? 1 : _filter.CompleteCount,
 				_filter.DisplayExperiments.Count == 0 ? 1 : _filter.DisplayExperiments.Count,
 				false,
-				progressLabelStyle);
+				emptyLabelStyle,
+				progressLabelStyle,
+				completeLabelStyle);
 
 			GUILayout.Space(20);
 
@@ -107,7 +125,7 @@ namespace ScienceChecklist {
 
 			foreach (var experiment in _filter.DisplayExperiments.Where(x => !_filter.HideComplete || !x.IsComplete)) {
 				var rect = new Rect(5, 20 * i, 500, 20);
-				DrawExperiment(experiment, rect, labelStyle, progressLabelStyle);
+				DrawExperiment(experiment, rect, labelStyle, emptyLabelStyle, progressLabelStyle, completeLabelStyle);
 				i++;
 			}
 
@@ -128,7 +146,7 @@ namespace ScienceChecklist {
 			GUI.DragWindow();
 		}
 
-		private void DrawExperiment (Experiment exp, Rect rect, GUIStyle labelStyle, GUIStyle progressLabelStyle) {
+		private void DrawExperiment (Experiment exp, Rect rect, GUIStyle labelStyle, GUIStyle emptyLabelStyle, GUIStyle progressLabelStyle, GUIStyle completeLabelStyle) {
 			labelStyle.normal.textColor = exp.IsComplete ? Color.green : Color.yellow;
 			var labelRect = new Rect(rect) {
 				y = rect.y + 3,
@@ -140,11 +158,13 @@ namespace ScienceChecklist {
 			};
 
 			GUI.Label(labelRect, new GUIContent(exp.Description), labelStyle);
-			ProgressBar(progressRect, exp.CompletedScience, exp.TotalScience, true, progressLabelStyle);
+			ProgressBar(progressRect, exp.CompletedScience, exp.TotalScience, true, emptyLabelStyle, progressLabelStyle, completeLabelStyle);
 		}
 
-		private void ProgressBar (Rect rect, float curr, float total, bool showValues, GUIStyle progressLabelStyle) {
-			GUI.skin.horizontalScrollbarThumb.normal.background = curr == 0 ? _emptyTexture : _progressTexture;
+		private void ProgressBar (Rect rect, float curr, float total, bool showValues, GUIStyle emptyLabelStyle, GUIStyle progressLabelStyle, GUIStyle completeLabelStyle) {
+			GUI.skin.horizontalScrollbarThumb.normal.background = curr == 0
+				? _emptyTexture
+				: curr >= total ? _completeTexture : _progressTexture;
 			var progressRect = new Rect(rect) {
 				y = rect.y + 1,
 			};
@@ -154,7 +174,7 @@ namespace ScienceChecklist {
 				var labelRect = new Rect(rect) {
 					y = rect.y - 1,
 				};
-				GUI.Label(labelRect, new GUIContent(string.Format("{0:0.#}  /  {1:0.#}", curr, total)), progressLabelStyle);
+				GUI.Label(labelRect, new GUIContent(string.Format("{0:0.#}  /  {1:0.#}", curr, total)), curr == 0 ? emptyLabelStyle : curr >= total ? completeLabelStyle : progressLabelStyle);
 			}
 		}
 
@@ -166,6 +186,7 @@ namespace ScienceChecklist {
 		private Vector2 _scrollPos;
 		
 		private readonly Texture2D _progressTexture;
+		private readonly Texture2D _completeTexture;
 		private readonly Texture2D _emptyTexture;
 		private readonly ExperimentFilter _filter;
 		private readonly Logger _logger;
