@@ -148,12 +148,16 @@ namespace ScienceChecklist {
 			}
 
 			_scrollPos = GUILayout.BeginScrollView(_scrollPos, GUI.skin.scrollView);
-			var i = 0;
 
-			foreach (var experiment in _filter.DisplayExperiments) {
+			var i = 0;
+			for (; i < _filter.DisplayExperiments.Count; i++) {
 				var rect = new Rect(5, 20 * i, 500, 20);
+				if (rect.yMax < _scrollPos.y || rect.yMin > _scrollPos.y + 400) {
+					continue;
+				}
+
+				var experiment = _filter.DisplayExperiments[i];
 				DrawExperiment(experiment, rect);
-				i++;
 			}
 
 			GUILayout.Space(20 * i);
