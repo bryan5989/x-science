@@ -16,6 +16,7 @@ namespace ScienceChecklist {
 		public IList<Experiment> AllExperiments     { get { return _allExperiments; } }
 		public IList<Experiment> DisplayExperiments { get { return _displayExperiments; } }
 		public int               CompleteCount      { get; private set; }
+		public int               TotalCount         { get; private set; }
 
 		public DisplayMode DisplayMode {
 			get {
@@ -186,7 +187,8 @@ namespace ScienceChecklist {
 				search.All(y => y.Any(z => x.Description.ToLowerInvariant().Contains(z.ToLowerInvariant()))));
 
 			CompleteCount = query.Count(x => x.IsComplete);
-			_displayExperiments = query.ToList();
+			TotalCount = query.Count();
+			_displayExperiments = query.Where (x => !HideComplete || !x.IsComplete).ToList();
 		}
 
 		private string GetId (ScienceExperiment exp, CelestialBody body, ExperimentSituations sit, string biome = null) {
