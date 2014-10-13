@@ -69,6 +69,10 @@ namespace ScienceChecklist {
 
 		private void Load () {
 			_logger.Trace("Load");
+			if (_active) {
+				_logger.Info("Already loaded.");
+				return;
+			}
 			if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER && HighLogic.CurrentGame.Mode != Game.Modes.SCIENCE_SANDBOX) {
 				_logger.Info("Game type is " + HighLogic.CurrentGame.Mode + ". Deactivating.");
 				_active = false;
@@ -89,10 +93,11 @@ namespace ScienceChecklist {
 		}
 
 		private void Unload () {
+			_logger.Trace("Unload");
 			if (!_active) {
+				_logger.Info("Already unloaded.");
 				return;
 			}
-			_logger.Trace("Unload");
 			_active = false;
 
 			_button.Remove();
