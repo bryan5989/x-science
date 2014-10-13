@@ -43,7 +43,7 @@ namespace ScienceChecklist {
 		}
 
 		private string BiomeToString (string biome) {
-			return Regex.Replace(biome ?? string.Empty, "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1").Trim();
+			return Regex.Replace(biome ?? string.Empty, "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1").Replace("  ", " ").Trim();
 		}
 
 		private readonly CelestialBody        _body;

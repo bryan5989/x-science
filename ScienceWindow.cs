@@ -72,7 +72,7 @@ namespace ScienceChecklist {
 			var biome = ScienceUtil.GetExperimentBiome(body, vessel.latitude, vessel.longitude);
 
 			if (!string.IsNullOrEmpty(vessel.landedAt)) {
-				biome = vessel.landedAt;
+				biome = Vessel.GetLandedAtString(vessel.landedAt);
 			}
 
 			if (_filter.CurrentSituation != null && _filter.CurrentSituation.Biome == biome && _filter.CurrentSituation.ExperimentSituation == situation && _filter.CurrentSituation.Body == body) {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using UnityEngine;
 
 namespace ScienceChecklist {
 	internal sealed class ExperimentFilter {
@@ -11,6 +12,7 @@ namespace ScienceChecklist {
 			_displayMode = DisplayMode.Unlocked;
 			_hideComplete = false;
 			_text = string.Empty;
+			_kscBiomes = new List<string>();
 		}
 
 		public IList<Experiment> AllExperiments     { get { return _allExperiments; } }
@@ -87,7 +89,21 @@ namespace ScienceChecklist {
 
 			var bodies = FlightGlobals.Bodies;
 			var situations = Enum.GetValues(typeof(ExperimentSituations)).Cast<ExperimentSituations>();
-			var biomes = bodies.ToDictionary(x => x, ResearchAndDevelopment.GetBiomeTags);
+			var biomes = bodies.ToDictionary(x => x, x => x.BiomeMap.Attributes.Select(y => y.name).ToArray());
+
+			_kscBiomes = _kscBiomes.Any () ? _kscBiomes : UnityEngine.Object.FindObjectsOfType<Collider>()
+				.Where(x => x.gameObject.layer == 15)
+				.Where(x => x.enabled)
+				.Select(x => x.gameObject.tag)
+				.Where(x => x != "Untagged")
+				.Where(x => !x.Contains("KSC_Runway_Light"))
+				.Where(x => !x.Contains("KSC_Pad_Flag_Pole"))
+				.Where(x => !x.Contains("Ladder"))
+				.Select(x => Vessel.GetLandedAtString(x))
+				.Select(x => x.Replace(" ", ""))
+				.Distinct()
+				.ToList();
+
 			var subjects = ResearchAndDevelopment.GetSubjects();
 
 			foreach (var experiment in experiments.Keys) {
@@ -149,6 +165,17 @@ namespace ScienceChecklist {
 
 								exps.Add(new Experiment(experiment, subject, new Situation(body, situation, biome)));
 							}
+
+							if ((body.name == "Kerbin") && situation == ExperimentSituations.SrfLanded) {
+								foreach (var biome in _kscBiomes) {
+									var subject = subjects
+										.Where(x => x.id == GetId(experiment, body, situation, biome))
+										.SingleOrDefault() ?? new ScienceSubject(experiment, situation, body, biome);
+
+									exps.Add(new Experiment(experiment, subject, new Situation(body, situation, biome)));
+								}
+							}
+
 						} else {
 							var subject = subjects
 								.Where(x => x.id == GetId(experiment, body, situation))
@@ -239,6 +266,7 @@ namespace ScienceChecklist {
 
 		private IList<Experiment> _allExperiments;
 		private IList<Experiment> _displayExperiments;
+		private IList<string> _kscBiomes;
 
 		private readonly Logger _logger;
 	}
