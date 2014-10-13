@@ -19,7 +19,6 @@ namespace ScienceChecklist {
 		public ScienceSubject       ScienceSubject    { get { return _subject; } }
 		public Situation            Situation         { get { return _situation; } }
 
-		public string FormattedBiome   { get; private set; }
 		public float  CompletedScience { get; private set; }
 		public bool   IsUnlocked       { get; private set; }
 		public float  TotalScience     { get; private set; }

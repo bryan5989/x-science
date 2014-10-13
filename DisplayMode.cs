@@ -5,8 +5,9 @@ using System.Text;
 
 namespace ScienceChecklist {
 	internal enum DisplayMode {
-		ActiveVessel = 0,
-		Unlocked = 1,
-		All = 2,
+		CurrentSituation = 0,
+		ActiveVessel = 1,
+		Unlocked = 2,
+		All = 3,
 	}
 }

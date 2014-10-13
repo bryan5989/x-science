@@ -57,7 +57,6 @@ namespace ScienceChecklist {
 		}
 
 		public void RecalculateSituation () {
-			_logger.Trace("RecalculateSituation");
 			var vessel = FlightGlobals.ActiveVessel;
 			if (vessel == null) {
 				if (_filter.CurrentSituation != null) {
@@ -72,7 +71,7 @@ namespace ScienceChecklist {
 			var biome = ScienceUtil.GetExperimentBiome(body, vessel.latitude, vessel.longitude);
 
 			if (!string.IsNullOrEmpty(vessel.landedAt)) {
-				biome = Vessel.GetLandedAtString(vessel.landedAt);
+				biome = Vessel.GetLandedAtString(vessel.landedAt).Replace(" ", "");
 			}
 
 			if (_filter.CurrentSituation != null && _filter.CurrentSituation.Biome == biome && _filter.CurrentSituation.ExperimentSituation == situation && _filter.CurrentSituation.Body == body) {
@@ -144,7 +143,7 @@ namespace ScienceChecklist {
 			GUILayout.EndHorizontal();
 
 			if (_filter.CurrentSituation != null) {
-				GUILayout.Label(new GUIContent("Currently " + _filter.CurrentSituation.Description));
+				GUILayout.Label(new GUIContent("Currently " + _filter.CurrentSituation.Description + "."));
 			}
 
 			_scrollPos = GUILayout.BeginScrollView(_scrollPos, GUI.skin.scrollView);
@@ -166,10 +165,11 @@ namespace ScienceChecklist {
 			GUILayout.BeginHorizontal();
 
 			_filter.DisplayMode = (DisplayMode) GUILayout.SelectionGrid((int) _filter.DisplayMode, new[] {
+				new GUIContent("Right now"),
 				new GUIContent("On vessel"),
 				new GUIContent("Unlocked"),
 				new GUIContent("All"),
-			}, 3);
+			}, 4);
 			_filter.HideComplete = GUILayout.Toggle(_filter.HideComplete, new GUIContent("Hide complete"), GUILayout.ExpandWidth(true));
 
 			GUILayout.EndHorizontal();

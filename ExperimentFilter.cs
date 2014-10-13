@@ -93,7 +93,6 @@ namespace ScienceChecklist {
 
 			_kscBiomes = _kscBiomes.Any () ? _kscBiomes : UnityEngine.Object.FindObjectsOfType<Collider>()
 				.Where(x => x.gameObject.layer == 15)
-				.Where(x => x.enabled)
 				.Select(x => x.gameObject.tag)
 				.Where(x => x != "Untagged")
 				.Where(x => !x.Contains("KSC_Runway_Light"))
@@ -202,6 +201,9 @@ namespace ScienceChecklist {
 				case DisplayMode.ActiveVessel:
 					query = ApplyActiveVesselFilter(query);
 					break;
+				case DisplayMode.CurrentSituation:
+					query = ApplyCurrentSituationFilter(query);
+					break;
 				default:
 					break;
 			}
@@ -244,7 +246,7 @@ namespace ScienceChecklist {
 				case GameScenes.SPACECENTER:
 				case GameScenes.TRACKSTATION:
 				default:
-					// No active vessel for these scences.
+					// No active vessel for these scenes.
 					return Enumerable.Empty<Experiment> ();
 			}
 		}
@@ -257,6 +259,24 @@ namespace ScienceChecklist {
 			return src.Where(x =>
 				(x.ScienceExperiment.id != "crewReport" && experiments.Contains(x.ScienceExperiment.id)) || // unmanned - crewReport needs to be explicitly ignored as we need crew for that experiment even though it's a module on the capsules
 				(hasCrew && (x.ScienceExperiment.id == "crewReport" || x.ScienceExperiment.id == "surfaceSample" || x.ScienceExperiment.id == "evaReport"))); // manned
+		}
+
+		private IEnumerable<Experiment> ApplyCurrentSituationFilter (IEnumerable<Experiment> src) {
+			if (HighLogic.LoadedScene != GameScenes.FLIGHT || CurrentSituation == null) {
+				return Enumerable.Empty<Experiment>();
+			}
+
+			var vessel = FlightGlobals.ActiveVessel;
+			if (vessel == null) {
+				return Enumerable.Empty<Experiment>();
+			}
+
+			src = ApplyActiveVesselFilter(src);
+
+			return src
+				.Where(x => x.Situation.Body == CurrentSituation.Body)
+				.Where(x => string.IsNullOrEmpty(x.Situation.Biome) || x.Situation.Biome == CurrentSituation.Biome)
+				.Where(x => x.Situation.ExperimentSituation == CurrentSituation.ExperimentSituation);
 		}
 
 		private DisplayMode _displayMode;
