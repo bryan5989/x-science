@@ -12,6 +12,13 @@ namespace ScienceChecklist {
 		#region METHODS (PUBLIC)
 
 		public void Awake () {
+			if (_addonInitialized == true) {
+				// For some reason the addon can be instantiated several times by the KSP addon loader (generally when going to/from the VAB),
+				// even though we set onlyOnce to true in the KSPAddon attribute.
+				return;
+			}
+
+			_addonInitialized = true;
 			_active = false;
 			_logger = new Logger(this);
 			_logger.Trace("Awake");
@@ -191,6 +198,8 @@ namespace ScienceChecklist {
 		private bool _buttonClicked;
 		private ScienceWindow _window;
 		private IEnumerator _rndLoader;
+
+		private static bool _addonInitialized;
 
 		#endregion
 	}
