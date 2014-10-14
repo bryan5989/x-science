@@ -131,16 +131,15 @@ namespace ScienceChecklist {
 			var situation = ScienceUtil.GetExperimentSituation(vessel);
 
 			var biome = ScienceUtil.GetExperimentBiome(body, vessel.latitude, vessel.longitude);
-
-			if (!string.IsNullOrEmpty(vessel.landedAt)) {
-				biome = Vessel.GetLandedAtString(vessel.landedAt).Replace(" ", "");
-			}
-
-			if (_filter.CurrentSituation != null && _filter.CurrentSituation.Biome == biome && _filter.CurrentSituation.ExperimentSituation == situation && _filter.CurrentSituation.Body == body) {
+			var subBiome = string.IsNullOrEmpty(vessel.landedAt)
+				? null
+				: Vessel.GetLandedAtString(vessel.landedAt).Replace(" ", "");
+			
+			if (_filter.CurrentSituation != null && _filter.CurrentSituation.Biome == biome && _filter.CurrentSituation.ExperimentSituation == situation && _filter.CurrentSituation.Body == body && _filter.CurrentSituation.SubBiome == subBiome) {
 				return;
 			}
 
-			_filter.CurrentSituation = new Situation(body, situation, biome);
+			_filter.CurrentSituation = new Situation(body, situation, biome, subBiome);
 		}
 
 		#endregion

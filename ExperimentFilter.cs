@@ -106,11 +106,12 @@ namespace ScienceChecklist {
 			var subjects = ResearchAndDevelopment.GetSubjects();
 
 			foreach (var experiment in experiments.Keys) {
-				
+				var useSubBiomes = true;
 				var sitMask = experiment.situationMask;
 				var biomeMask = experiment.biomeMask;
 				if (sitMask == 0 && experiments[experiment] != null) {
 					// OrbitalScience support
+					useSubBiomes = false;
 					var sitMaskField = experiments[experiment].GetType().GetField("sitMask");
 					if (sitMaskField != null) {
 						sitMask = (uint) (int) sitMaskField.GetValue(experiments[experiment]);
@@ -162,16 +163,17 @@ namespace ScienceChecklist {
 									.Where (x => x.id == GetId(experiment, body, situation, biome))
 									.SingleOrDefault () ?? new ScienceSubject(experiment, situation, body, biome);
 
-								exps.Add(new Experiment(experiment, subject, new Situation(body, situation, biome)));
+								exps.Add(new Experiment(experiment, subject, new Situation(body, situation, biome), useSubBiomes));
 							}
 
-							if ((body.name == "Kerbin") && situation == ExperimentSituations.SrfLanded) {
-								foreach (var biome in _kscBiomes) {
+							if ((body.name == "Kerbin") && situation == ExperimentSituations.SrfLanded && useSubBiomes) {
+								foreach (var kscBiome in _kscBiomes) {
 									var subject = subjects
-										.Where(x => x.id == GetId(experiment, body, situation, biome))
-										.SingleOrDefault() ?? new ScienceSubject(experiment, situation, body, biome);
+										.Where(x => x.id == GetId(experiment, body, situation, kscBiome))
+										.SingleOrDefault() ?? new ScienceSubject(experiment, situation, body, kscBiome);
 
-									exps.Add(new Experiment(experiment, subject, new Situation(body, situation, biome)));
+									// Ew.
+									exps.Add(new Experiment(experiment, subject, new Situation(body, situation, "Shores", kscBiome), useSubBiomes));
 								}
 							}
 
@@ -179,7 +181,7 @@ namespace ScienceChecklist {
 							var subject = subjects
 								.Where(x => x.id == GetId(experiment, body, situation))
 								.SingleOrDefault() ?? new ScienceSubject(experiment, situation, body);
-							exps.Add(new Experiment(experiment, subject, new Situation(body, situation)));
+							exps.Add(new Experiment(experiment, subject, new Situation(body, situation), useSubBiomes));
 						}
 					}
 				}
@@ -276,6 +278,7 @@ namespace ScienceChecklist {
 			return src
 				.Where(x => x.Situation.Body == CurrentSituation.Body)
 				.Where(x => string.IsNullOrEmpty(x.Situation.Biome) || x.Situation.Biome == CurrentSituation.Biome)
+				.Where(x => x.UsesSubBiomes ? x.Situation.SubBiome == CurrentSituation.SubBiome : true)
 				.Where(x => x.Situation.ExperimentSituation == CurrentSituation.ExperimentSituation);
 		}
 

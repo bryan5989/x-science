@@ -6,10 +6,11 @@ using System.Text.RegularExpressions;
 
 namespace ScienceChecklist {
 	internal sealed class Experiment {
-		public Experiment (ScienceExperiment experiment, ScienceSubject subject, Situation situation) {
+		public Experiment (ScienceExperiment experiment, ScienceSubject subject, Situation situation, bool usesSubBiomes) {
 			_experiment = experiment;
 			_subject = subject;
 			_situation = situation;
+			_usesSubBiomes = usesSubBiomes;
 			Update();
 		}
 
@@ -18,6 +19,7 @@ namespace ScienceChecklist {
 		public ScienceExperiment    ScienceExperiment { get { return _experiment; } }
 		public ScienceSubject       ScienceSubject    { get { return _subject; } }
 		public Situation            Situation         { get { return _situation; } }
+		public bool                 UsesSubBiomes     { get { return _usesSubBiomes; } }
 
 		public float  CompletedScience { get; private set; }
 		public bool   IsUnlocked       { get; private set; }
@@ -55,6 +57,7 @@ namespace ScienceChecklist {
 		private readonly ScienceExperiment _experiment;
 		private readonly ScienceSubject _subject;
 		private readonly Situation _situation;
+		private readonly bool _usesSubBiomes;
 
 		#endregion
 	}

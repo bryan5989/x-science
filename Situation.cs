@@ -6,21 +6,29 @@ using System.Text.RegularExpressions;
 
 namespace ScienceChecklist {
 	internal sealed class Situation {
-		public Situation (CelestialBody body, ExperimentSituations situation, string biome = null) {
+		public Situation (CelestialBody body, ExperimentSituations situation, string biome = null, string subBiome = null) {
 			_body = body;
 			_situation = situation;
 			_biome = biome;
+			_subBiome = subBiome;
 			_formattedBiome = BiomeToString(_biome);
+			_formattedSubBiome = BiomeToString(_subBiome);
 			_description = string.Format("{0} {1}{2}",
 				ToString(_situation),
 				Body.theName,
-				string.IsNullOrEmpty(_formattedBiome) ? string.Empty : string.Format("'s {0}", _formattedBiome));
+				string.IsNullOrEmpty(_formattedBiome)
+					? string.Empty
+					: string.IsNullOrEmpty(_formattedSubBiome)
+						? string.Format("'s {0}", _formattedBiome)
+						: string.Format("'s {0} ({1})", _formattedSubBiome, _formattedBiome));
 		}
 
 		public CelestialBody        Body                { get { return _body; } }
 		public ExperimentSituations ExperimentSituation { get { return _situation; } }
 		public string               Biome               { get { return _biome; } }
+		public string               SubBiome            { get { return _subBiome; } }
 		public string               FormattedBiome      { get { return _formattedBiome; } }
+		public string               FormattedSubBiome   { get { return _formattedSubBiome; } }
 		public string               Description         { get { return _description; } }
 
 		private string ToString (ExperimentSituations situation) {
@@ -49,7 +57,9 @@ namespace ScienceChecklist {
 		private readonly CelestialBody        _body;
 		private readonly ExperimentSituations _situation;
 		private readonly string               _biome;
+		private readonly string               _subBiome;
 		private readonly string               _formattedBiome;
+		private readonly string               _formattedSubBiome;
 		private readonly string               _description;
 	}
 }
