@@ -8,7 +8,7 @@
 * Completed experiment progress bars are now rendered in a different colour.
 * Replaced text on filter buttons with icons.
 * Fixed several memory leaks.
-* Fixed addon being loaded multiple times
+* Fixed addon being loaded multiple times.
 
 1.1
 ---
