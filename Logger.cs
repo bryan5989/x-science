@@ -106,7 +106,7 @@ namespace ScienceChecklist {
 		/// <param name="logLevel">The log level at which the log should be written.</param>
 		/// <returns>The formatted message.</returns>
 		private string GetMessage (string message, LogLevel logLevel) {
-			return string.Format("[[x] Science!]: <{0}> ({1}) - {2}", logLevel, _ownerName, message);
+			return string.Format("[{0} [x] Science!]: <{1}> ({2}) - {3}", DateTime.Now, logLevel, _ownerName, message);
 		}
 
 		#endregion

@@ -45,6 +45,17 @@ namespace ScienceChecklist {
 
 			_rect = GUILayout.Window(_windowId, _rect, DrawControls, "[x] Science!");
 
+			if (!string.IsNullOrEmpty(_lastTooltip)) {
+				var style = new GUIStyle(GUI.skin.window) {
+					normal = {
+						background = _emptyTexture,
+					},
+				};
+				GUI.Window(_window2Id, new Rect(Mouse.screenPos.x + 15, Mouse.screenPos.y + 15, 500, 30), x => {
+					GUI.Label(new Rect(), _lastTooltip);
+				}, string.Empty, style);
+			}
+
 			GUI.skin = oldSkin;
 		}
 
@@ -139,7 +150,7 @@ namespace ScienceChecklist {
 
 			_filter.Text = GUILayout.TextField(_filter.Text, GUILayout.ExpandWidth(true));
 
-			if (GUILayout.Button(new GUIContent(_clearSearchTexture), GUILayout.Width(25), GUILayout.Height(23))) {
+			if (GUILayout.Button(new GUIContent(_clearSearchTexture, "Clear search"), GUILayout.Width(25), GUILayout.Height(23))) {
 				_filter.Text = string.Empty;
 			}
 
@@ -183,6 +194,16 @@ namespace ScienceChecklist {
 			GUILayout.EndHorizontal();
 			GUILayout.EndVertical();
 			GUI.DragWindow();
+
+			if (Event.current.type == EventType.Repaint && GUI.tooltip != _lastTooltip) {
+				_lastTooltip = GUI.tooltip;
+			}
+			
+			// If this window gets focus, it pushes the tooltip behind the window, which looks weird.
+			// Just hide the tooltip while mouse buttons are held down to avoid this.
+			if (Input.GetMouseButton(0) || Input.GetMouseButton(1) || Input.GetMouseButton(3)) {
+				_lastTooltip = string.Empty;
+			}
 		}
 
 		private void DrawExperiment (Experiment exp, Rect rect) {
@@ -227,6 +248,7 @@ namespace ScienceChecklist {
 		private GUIStyle _progressLabelStyle;
 		private GUIStyle _emptyLabelStyle;
 		private GUIStyle _completeLabelStyle;
+		private string _lastTooltip;
 
 		private readonly Texture2D _progressTexture;
 		private readonly Texture2D _completeTexture;
@@ -243,6 +265,7 @@ namespace ScienceChecklist {
 		private readonly ExperimentFilter _filter;
 		private readonly Logger _logger;
 		private readonly int _windowId = UnityEngine.Random.Range(0, int.MaxValue);
+		private readonly int _window2Id = UnityEngine.Random.Range(0, int.MaxValue);
 
 		#endregion
 	}
