@@ -40,20 +40,69 @@ namespace ScienceChecklist {
 				return;
 			}
 
+			if (_skin == null) {
+				// Initialize our skin and styles.
+				_skin = GameObject.Instantiate(HighLogic.Skin) as GUISkin;
+
+				_skin.horizontalScrollbarThumb.fixedHeight = 13;
+				_skin.horizontalScrollbar.fixedHeight = 13;
+
+				_labelStyle = new GUIStyle(_skin.label) {
+					fontSize = 11,
+					fontStyle = FontStyle.Italic,
+				};
+
+				_emptyLabelStyle = new GUIStyle(_skin.label) {
+					fontStyle = FontStyle.BoldAndItalic,
+					alignment = TextAnchor.MiddleCenter,
+					fontSize = 11,
+					normal = {
+						textColor = new Color(0.337f, 0.357f, 0.357f),
+					},
+				};
+
+				_progressLabelStyle = new GUIStyle(_emptyLabelStyle) {
+					normal = {
+						textColor = new Color(0.004f, 0.318f, 0.349f),
+					},
+				};
+
+				_completeLabelStyle = new GUIStyle(_progressLabelStyle) {
+					normal = {
+						textColor = new Color(0.035f, 0.420f, 0.114f),
+					},
+				};
+
+				_situationStyle = new GUIStyle(_completeLabelStyle) {
+					fontSize = 13,
+					alignment = TextAnchor.MiddleLeft,
+					fontStyle = FontStyle.Normal,
+					fixedHeight = 25,
+					contentOffset = new Vector2(0, 6),
+					normal = {
+						textColor = new Color(0.7f, 0.8f, 0.8f),
+					},
+				};
+
+				_experimentProgressLabelStyle = new GUIStyle(_skin.label) {
+					padding = new RectOffset(0, 0, 4, 0),
+				};
+			}
+
 			var oldSkin = GUI.skin;
-			GUI.skin = GameObject.Instantiate(HighLogic.Skin) as GUISkin;
+			GUI.skin = _skin;
 
 			_rect = GUILayout.Window(_windowId, _rect, DrawControls, "[x] Science!");
 
 			if (!string.IsNullOrEmpty(_lastTooltip)) {
-				var style = new GUIStyle(GUI.skin.window) {
+				_tooltipStyle = _tooltipStyle ?? new GUIStyle(_skin.window) {
 					normal = {
 						background = _emptyTexture,
 					},
 				};
 				GUI.Window(_window2Id, new Rect(Mouse.screenPos.x + 15, Mouse.screenPos.y + 15, 500, 30), x => {
 					GUI.Label(new Rect(), _lastTooltip);
-				}, string.Empty, style);
+				}, string.Empty, _tooltipStyle);
 			}
 
 			GUI.skin = oldSkin;
@@ -101,45 +150,6 @@ namespace ScienceChecklist {
 		private void DrawControls (int windowId) {
 			GUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
 
-			_labelStyle = _labelStyle ?? new GUIStyle(GUI.skin.label) {
-				fontSize = 11,
-				fontStyle = FontStyle.Italic,
-			};
-
-			_emptyLabelStyle = _emptyLabelStyle ?? new GUIStyle(GUI.skin.label) {
-				fontStyle = FontStyle.BoldAndItalic,
-				alignment = TextAnchor.MiddleCenter,
-				fontSize = 11,
-				normal = {
-					textColor = new Color(0.337f, 0.357f, 0.357f),
-				},
-			};
-
-			_progressLabelStyle = _progressLabelStyle ?? new GUIStyle(_emptyLabelStyle) {
-				normal = {
-					textColor = new Color(0.004f, 0.318f, 0.349f),
-				},
-			};
-
-			_completeLabelStyle = _completeLabelStyle ?? new GUIStyle(_progressLabelStyle) {
-				normal = {
-					textColor = new Color(0.035f, 0.420f, 0.114f),
-				},
-			};
-
-			_situationStyle = _situationStyle ?? new GUIStyle(_completeLabelStyle) {
-				fontSize = 13,
-				alignment = TextAnchor.MiddleLeft,
-				fontStyle = FontStyle.Normal,
-				fixedHeight = 25,
-				contentOffset = new Vector2(0, 6),
-				normal = {
-					textColor = new Color(0.7f, 0.8f, 0.8f),
-				},
-			};
-
-			GUI.skin.horizontalScrollbarThumb.fixedHeight = 13;
-			GUI.skin.horizontalScrollbar.fixedHeight = 13;
 			var completePercent = _filter.TotalCount == 0 ? 1 : ((float) _filter.CompleteCount / (float) _filter.TotalCount);
 			
 			ProgressBar(
@@ -152,13 +162,9 @@ namespace ScienceChecklist {
 
 			GUILayout.BeginHorizontal();
 
-			var oldPadding = GUI.skin.label.padding;
-			GUI.skin.label.padding = new RectOffset(0, 0, 4, 0);
-			GUILayout.Label(string.Format("{0}/{1} complete.", _filter.CompleteCount, _filter.TotalCount), GUILayout.Width(150));
-			GUI.skin.label.padding = new RectOffset(0, 0, 0, 0);
+			GUILayout.Label(string.Format("{0}/{1} complete.", _filter.CompleteCount, _filter.TotalCount), _experimentProgressLabelStyle, GUILayout.Width(150));
 			GUILayout.FlexibleSpace();
 			GUILayout.Label(new GUIContent(_searchTexture));
-			GUI.skin.label.padding = oldPadding;
 			_filter.Text = GUILayout.TextField(_filter.Text, GUILayout.Width(150));
 
 			if (GUILayout.Button(new GUIContent(_clearSearchTexture, "Clear search"), GUILayout.Width(25), GUILayout.Height(23))) {
@@ -167,7 +173,7 @@ namespace ScienceChecklist {
 
 			GUILayout.EndHorizontal();
 
-			_scrollPos = GUILayout.BeginScrollView(_scrollPos, GUI.skin.scrollView);
+			_scrollPos = GUILayout.BeginScrollView(_scrollPos, _skin.scrollView);
 
 			var i = 0;
 			for (; i < _filter.DisplayExperiments.Count; i++) {
@@ -236,7 +242,7 @@ namespace ScienceChecklist {
 		}
 
 		private void ProgressBar (Rect rect, float curr, float total, bool showValues) {
-			GUI.skin.horizontalScrollbarThumb.normal.background = curr == 0
+			_skin.horizontalScrollbarThumb.normal.background = curr == 0
 				? _emptyTexture
 				: curr >= total ? _completeTexture : _progressTexture;
 			var progressRect = new Rect(rect) {
@@ -263,6 +269,10 @@ namespace ScienceChecklist {
 		private GUIStyle _emptyLabelStyle;
 		private GUIStyle _completeLabelStyle;
 		private GUIStyle _situationStyle;
+		private GUIStyle _experimentProgressLabelStyle;
+		private GUIStyle _tooltipStyle;
+		private GUISkin _skin;
+
 		private string _lastTooltip;
 
 		private readonly Texture2D _progressTexture;
