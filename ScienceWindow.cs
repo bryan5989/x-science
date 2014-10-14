@@ -127,6 +127,17 @@ namespace ScienceChecklist {
 				},
 			};
 
+			_situationStyle = _situationStyle ?? new GUIStyle(_completeLabelStyle) {
+				fontSize = 13,
+				alignment = TextAnchor.MiddleLeft,
+				fontStyle = FontStyle.Normal,
+				fixedHeight = 25,
+				contentOffset = new Vector2(0, 6),
+				normal = {
+					textColor = new Color(0.7f, 0.8f, 0.8f),
+				},
+			};
+
 			GUI.skin.horizontalScrollbarThumb.fixedHeight = 13;
 			GUI.skin.horizontalScrollbar.fixedHeight = 13;
 			var completePercent = _filter.TotalCount == 0 ? 1 : ((float) _filter.CompleteCount / (float) _filter.TotalCount);
@@ -145,20 +156,16 @@ namespace ScienceChecklist {
 			GUI.skin.label.padding = new RectOffset(0, 0, 4, 0);
 			GUILayout.Label(string.Format("{0}/{1} complete.", _filter.CompleteCount, _filter.TotalCount), GUILayout.Width(150));
 			GUI.skin.label.padding = new RectOffset(0, 0, 0, 0);
+			GUILayout.FlexibleSpace();
 			GUILayout.Label(new GUIContent(_searchTexture));
 			GUI.skin.label.padding = oldPadding;
-
-			_filter.Text = GUILayout.TextField(_filter.Text, GUILayout.ExpandWidth(true));
+			_filter.Text = GUILayout.TextField(_filter.Text, GUILayout.Width(150));
 
 			if (GUILayout.Button(new GUIContent(_clearSearchTexture, "Clear search"), GUILayout.Width(25), GUILayout.Height(23))) {
 				_filter.Text = string.Empty;
 			}
 
 			GUILayout.EndHorizontal();
-
-			if (_filter.CurrentSituation != null) {
-				GUILayout.Label("Currently " + _filter.CurrentSituation.Description + ".");
-			}
 
 			_scrollPos = GUILayout.BeginScrollView(_scrollPos, GUI.skin.scrollView);
 
@@ -186,6 +193,13 @@ namespace ScienceChecklist {
 			}, 4);
 
 			GUILayout.FlexibleSpace();
+
+			if (_filter.CurrentSituation != null) {
+				var desc = _filter.CurrentSituation.Description;
+				GUILayout.Label(char.ToUpper(desc[0]) + desc.Substring(1), _situationStyle);
+			}
+
+			GUILayout.FlexibleSpace();
 			var toggleComplete = GUILayout.Button(new GUIContent(_filter.HideComplete ? _hideCompleteTexture : _showCompleteTexture, _filter.HideComplete ? "Currently hiding completed experiments" : "Currently showing completed experiments"), GUILayout.ExpandWidth(false));
 			if (toggleComplete) {
 				_filter.HideComplete = !_filter.HideComplete;
@@ -201,7 +215,7 @@ namespace ScienceChecklist {
 			
 			// If this window gets focus, it pushes the tooltip behind the window, which looks weird.
 			// Just hide the tooltip while mouse buttons are held down to avoid this.
-			if (Input.GetMouseButton(0) || Input.GetMouseButton(1) || Input.GetMouseButton(3)) {
+			if (Input.GetMouseButton(0) || Input.GetMouseButton(1) || Input.GetMouseButton(2)) {
 				_lastTooltip = string.Empty;
 			}
 		}
@@ -248,6 +262,7 @@ namespace ScienceChecklist {
 		private GUIStyle _progressLabelStyle;
 		private GUIStyle _emptyLabelStyle;
 		private GUIStyle _completeLabelStyle;
+		private GUIStyle _situationStyle;
 		private string _lastTooltip;
 
 		private readonly Texture2D _progressTexture;
