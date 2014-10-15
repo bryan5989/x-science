@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -14,17 +13,19 @@ namespace ScienceChecklist {
 			_filter = new ExperimentFilter();
 			_progressTexture = TextureHelper.FromResource("ScienceChecklist.scienceProgress.png", 13, 13);
 			_completeTexture = TextureHelper.FromResource("ScienceChecklist.scienceComplete.png", 13, 13);
-			_currentSituationTexture = TextureHelper.FromResource("ScienceChecklist.icons.currentSituation.png", 25, 31);
-			_currentVesselTexture = TextureHelper.FromResource("ScienceChecklist.icons.currentVessel.png", 25, 31);
-			_unlockedTexture = TextureHelper.FromResource("ScienceChecklist.icons.unlocked.png", 25, 31);
-			_allTexture = TextureHelper.FromResource("ScienceChecklist.icons.all.png", 25, 31);
-			_hideCompleteTexture = TextureHelper.FromResource("ScienceChecklist.icons.hideComplete.png", 25, 31);
-			_showCompleteTexture = TextureHelper.FromResource("ScienceChecklist.icons.showComplete.png", 25, 31);
-			_searchTexture = TextureHelper.FromResource("ScienceChecklist.icons.search.png", 25, 31);
-			_clearSearchTexture = TextureHelper.FromResource("ScienceChecklist.icons.clearSearch.png", 25, 31);
+			_currentSituationTexture = TextureHelper.FromResource("ScienceChecklist.icons.currentSituation.png", 25, 21);
+			_currentVesselTexture = TextureHelper.FromResource("ScienceChecklist.icons.currentVessel.png", 25, 21);
+			_unlockedTexture = TextureHelper.FromResource("ScienceChecklist.icons.unlocked.png", 25, 21);
+			_allTexture = TextureHelper.FromResource("ScienceChecklist.icons.all.png", 25, 21);
+			_hideCompleteTexture = TextureHelper.FromResource("ScienceChecklist.icons.hideComplete.png", 25, 21);
+			_showCompleteTexture = TextureHelper.FromResource("ScienceChecklist.icons.showComplete.png", 25, 21);
+			_searchTexture = TextureHelper.FromResource("ScienceChecklist.icons.search.png", 25, 21);
+			_clearSearchTexture = TextureHelper.FromResource("ScienceChecklist.icons.clearSearch.png", 25, 21);
+			_settingsTexture = TextureHelper.FromResource("ScienceChecklist.icons.settings.png", 25, 21);
 			_emptyTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
 			_emptyTexture.SetPixels(new[] { Color.clear });
 			_emptyTexture.Apply();
+			_settingsPanel = new SettingsPanel();
 		}
 
 		#region PROPERTIES
@@ -147,10 +148,9 @@ namespace ScienceChecklist {
 		#region METHODS (PRIVATE)
 
 		private void DrawControls (int windowId) {
+			GUILayout.BeginHorizontal ();
 			GUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
 
-			var completePercent = _filter.TotalCount == 0 ? 1 : ((float) _filter.CompleteCount / (float) _filter.TotalCount);
-			
 			ProgressBar(
 				new Rect (10, 27, 480, 13),
 				_filter.TotalCount == 0 ? 1 : _filter.CompleteCount,
@@ -210,8 +210,20 @@ namespace ScienceChecklist {
 				_filter.HideComplete = !_filter.HideComplete;
 			}
 
+			var toggleSettings = GUILayout.Button(new GUIContent(_settingsTexture, "Settings"));
+			if (toggleSettings) {
+				_showSettings = !_showSettings;
+				_rect.xMax = _showSettings ? 700 : 500;
+			}
+			
 			GUILayout.EndHorizontal();
-			GUILayout.EndVertical();
+			GUILayout.EndVertical ();
+
+			if (_showSettings) {
+				_settingsPanel.Draw();
+			}
+
+			GUILayout.EndHorizontal ();
 			GUI.DragWindow();
 
 			if (Event.current.type == EventType.Repaint && GUI.tooltip != _lastTooltip) {
@@ -274,6 +286,7 @@ namespace ScienceChecklist {
 		private GUISkin _skin;
 
 		private string _lastTooltip;
+		private bool _showSettings;
 
 		private readonly Texture2D _progressTexture;
 		private readonly Texture2D _completeTexture;
@@ -286,6 +299,8 @@ namespace ScienceChecklist {
 		private readonly Texture2D _showCompleteTexture;
 		private readonly Texture2D _searchTexture;
 		private readonly Texture2D _clearSearchTexture;
+		private readonly Texture2D _settingsTexture;
+		private readonly SettingsPanel _settingsPanel;
 
 		private readonly ExperimentFilter _filter;
 		private readonly Logger _logger;

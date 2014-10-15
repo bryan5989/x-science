@@ -55,9 +55,11 @@
   <ItemGroup>
     <Compile Include="DisplayMode.cs" />
     <Compile Include="Experiment.cs" />
+    <Compile Include="ExperimentalFeatures.cs" />
     <Compile Include="ExperimentFilter.cs" />
     <Compile Include="ScienceChecklistAddon.cs" />
     <Compile Include="ScienceWindow.cs" />
+    <Compile Include="SettingsPanel.cs" />
     <Compile Include="Situation.cs" />
     <Compile Include="StreamEx.cs" />
     <Compile Include="TextureHelper.cs" />
