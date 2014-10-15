@@ -241,9 +241,10 @@ namespace ScienceChecklist {
 		}
 
 		private void ProgressBar (Rect rect, float curr, float total, bool showValues) {
-			_skin.horizontalScrollbarThumb.normal.background = curr == 0
+			var complete = curr > total || (total - curr < 0.1);
+			_skin.horizontalScrollbarThumb.normal.background = curr < 0.1
 				? _emptyTexture
-				: curr >= total ? _completeTexture : _progressTexture;
+				: complete ? _completeTexture : _progressTexture;
 			var progressRect = new Rect(rect) {
 				y = rect.y + 1,
 			};
@@ -253,7 +254,7 @@ namespace ScienceChecklist {
 				var labelRect = new Rect(rect) {
 					y = rect.y - 1,
 				};
-				GUI.Label(labelRect, string.Format("{0:0.#}  /  {1:0.#}", curr, total), curr == 0 ? _emptyLabelStyle : curr >= total ? _completeLabelStyle : _progressLabelStyle);
+				GUI.Label(labelRect, string.Format("{0:0.#}  /  {1:0.#}", curr, total), curr < 0.1 ? _emptyLabelStyle : complete ? _completeLabelStyle : _progressLabelStyle);
 			}
 		}
 

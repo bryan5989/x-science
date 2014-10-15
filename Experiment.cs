@@ -47,7 +47,7 @@ namespace ScienceChecklist {
 
 			CompletedScience = _subject.science * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier;
 			TotalScience = _subject.scienceCap * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier;
-			IsComplete = Math.Abs(CompletedScience - TotalScience) < 0.01;
+			IsComplete = CompletedScience > TotalScience || TotalScience - CompletedScience < 0.1;
 		}
 
 		#endregion
