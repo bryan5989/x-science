@@ -254,6 +254,9 @@ namespace ScienceChecklist {
 
 		private void ProgressBar (Rect rect, float curr, float total, bool showValues) {
 			var complete = curr > total || (total - curr < 0.1);
+			if (complete) {
+				curr = total;
+			}
 			_skin.horizontalScrollbarThumb.normal.background = curr < 0.1
 				? _emptyTexture
 				: complete ? _completeTexture : _progressTexture;

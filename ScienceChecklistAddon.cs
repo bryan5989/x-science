@@ -71,6 +71,8 @@ namespace ScienceChecklist {
 			_logger.Trace("Load");
 			if (_active) {
 				_logger.Info("Already loaded.");
+				_rndLoader = WaitForRnDAndPartLoader();
+				StartCoroutine(_rndLoader);
 				return;
 			}
 			if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER && HighLogic.CurrentGame.Mode != Game.Modes.SCIENCE_SANDBOX) {
