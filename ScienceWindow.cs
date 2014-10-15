@@ -149,7 +149,7 @@ namespace ScienceChecklist {
 
 		private void DrawControls (int windowId) {
 			GUILayout.BeginHorizontal ();
-			GUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+			GUILayout.BeginVertical(GUILayout.Width(480), GUILayout.ExpandHeight(true));
 
 			ProgressBar(
 				new Rect (10, 27, 480, 13),
@@ -213,7 +213,7 @@ namespace ScienceChecklist {
 			var toggleSettings = GUILayout.Button(new GUIContent(_settingsTexture, "Settings"));
 			if (toggleSettings) {
 				_showSettings = !_showSettings;
-				_rect.xMax = _showSettings ? 700 : 500;
+				_rect.width = _showSettings ? 700 : 500;
 			}
 			
 			GUILayout.EndHorizontal();
