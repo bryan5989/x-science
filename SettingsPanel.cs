@@ -15,7 +15,7 @@ namespace ScienceChecklist
 			GUILayout.BeginVertical();
 
 			GUILayout.Label("Experimental features");
-			ExperimentalFeatures.ShowInProgressScience = GUILayout.Toggle(ExperimentalFeatures.ShowInProgressScience, "Show in-progress science");
+			ExperimentalFeatures.ShowOnboardScience = GUILayout.Toggle(ExperimentalFeatures.ShowOnboardScience, "Show onboard science");
 
 			GUILayout.EndVertical();
 		}

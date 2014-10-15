@@ -25,6 +25,7 @@ namespace ScienceChecklist {
 		public bool   IsUnlocked       { get; private set; }
 		public float  TotalScience     { get; private set; }
 		public bool   IsComplete       { get; private set; }
+		public float  OnboardScience   { get; private set; }
 
 		public string Description {
 			get {
@@ -48,6 +49,8 @@ namespace ScienceChecklist {
 			CompletedScience = _subject.science * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier;
 			TotalScience = _subject.scienceCap * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier;
 			IsComplete = CompletedScience > TotalScience || TotalScience - CompletedScience < 0.1;
+
+			OnboardScience = FlightGlobals.Vessels.Count;
 		}
 
 		#endregion

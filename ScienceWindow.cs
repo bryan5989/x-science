@@ -53,28 +53,16 @@ namespace ScienceChecklist {
 					fontStyle = FontStyle.Italic,
 				};
 
-				_emptyLabelStyle = new GUIStyle(_skin.label) {
+				_progressLabelStyle = new GUIStyle(_skin.label) {
 					fontStyle = FontStyle.BoldAndItalic,
 					alignment = TextAnchor.MiddleCenter,
 					fontSize = 11,
 					normal = {
-						textColor = new Color(0.337f, 0.357f, 0.357f),
+						textColor = new Color(0.322f, 0.298f, 0.004f),
 					},
 				};
 
-				_progressLabelStyle = new GUIStyle(_emptyLabelStyle) {
-					normal = {
-						textColor = new Color(0.004f, 0.318f, 0.349f),
-					},
-				};
-
-				_completeLabelStyle = new GUIStyle(_progressLabelStyle) {
-					normal = {
-						textColor = new Color(0.035f, 0.420f, 0.114f),
-					},
-				};
-
-				_situationStyle = new GUIStyle(_completeLabelStyle) {
+				_situationStyle = new GUIStyle(_progressLabelStyle) {
 					fontSize = 13,
 					alignment = TextAnchor.MiddleLeft,
 					fontStyle = FontStyle.Normal,
@@ -87,6 +75,12 @@ namespace ScienceChecklist {
 
 				_experimentProgressLabelStyle = new GUIStyle(_skin.label) {
 					padding = new RectOffset(0, 0, 4, 0),
+				};
+
+				_horizontalScrollbarOnboardStyle = new GUIStyle(_skin.horizontalScrollbar) {
+					normal = {
+						background = _emptyTexture,
+					},
 				};
 			}
 
@@ -155,6 +149,7 @@ namespace ScienceChecklist {
 				new Rect (10, 27, 480, 13),
 				_filter.TotalCount == 0 ? 1 : _filter.CompleteCount,
 				_filter.TotalCount == 0 ? 1 : _filter.TotalCount,
+				0,
 				false);
 
 			GUILayout.Space(20);
@@ -249,27 +244,44 @@ namespace ScienceChecklist {
 			};
 
 			GUI.Label(labelRect, exp.Description, _labelStyle);
-			ProgressBar(progressRect, exp.CompletedScience, exp.TotalScience, true);
+			ProgressBar(progressRect, exp.CompletedScience, exp.TotalScience, exp.CompletedScience + exp.OnboardScience, true);
 		}
 
-		private void ProgressBar (Rect rect, float curr, float total, bool showValues) {
+		private void ProgressBar (Rect rect, float curr, float total, float curr2, bool showValues) {
 			var complete = curr > total || (total - curr < 0.1);
 			if (complete) {
 				curr = total;
 			}
-			_skin.horizontalScrollbarThumb.normal.background = curr < 0.1
-				? _emptyTexture
-				: complete ? _completeTexture : _progressTexture;
 			var progressRect = new Rect(rect) {
 				y = rect.y + 1,
 			};
+
+			if (ExperimentalFeatures.ShowOnboardScience) {
+				if (curr2 != 0 && !complete) {
+					var complete2 = false;
+					if (curr2 > total || (total - curr2 < 0.1)) {
+						curr2 = total;
+						complete2 = true;
+					}
+					_skin.horizontalScrollbarThumb.normal.background = curr2 < 0.1
+						? _emptyTexture
+						: complete2 ? _completeTexture : _progressTexture;
+
+					GUI.HorizontalScrollbar(progressRect, 0, curr2 / total, 0, 1, _horizontalScrollbarOnboardStyle);
+				}
+			}
+
+			_skin.horizontalScrollbarThumb.normal.background = curr < 0.1
+				? _emptyTexture
+				: complete ? _completeTexture : _progressTexture;
+
 			GUI.HorizontalScrollbar(progressRect, 0, curr / total, 0, 1);
 
 			if (showValues) {
 				var labelRect = new Rect(rect) {
 					y = rect.y - 1,
 				};
-				GUI.Label(labelRect, string.Format("{0:0.#}  /  {1:0.#}", curr, total), curr < 0.1 ? _emptyLabelStyle : complete ? _completeLabelStyle : _progressLabelStyle);
+				GUI.Label(labelRect, string.Format("{0:0.#}  /  {1:0.#}", curr, total), _progressLabelStyle);
 			}
 		}
 
@@ -280,9 +292,8 @@ namespace ScienceChecklist {
 		private Rect _rect;
 		private Vector2 _scrollPos;
 		private GUIStyle _labelStyle;
+		private GUIStyle _horizontalScrollbarOnboardStyle;
 		private GUIStyle _progressLabelStyle;
-		private GUIStyle _emptyLabelStyle;
-		private GUIStyle _completeLabelStyle;
 		private GUIStyle _situationStyle;
 		private GUIStyle _experimentProgressLabelStyle;
 		private GUIStyle _tooltipStyle;

@@ -7,6 +7,6 @@ namespace ScienceChecklist
 {
 	internal static class ExperimentalFeatures
 	{
-		public static bool ShowInProgressScience { get; set; }
+		public static bool ShowOnboardScience { get; set; }
 	}
 }
