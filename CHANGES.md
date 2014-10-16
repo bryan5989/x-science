@@ -1,10 +1,16 @@
 [x] Science!
 ============
 
+3.0
+---
+* Added onboard science detection.
+* Added support for CustomBiomes.
+* Fixed experiments not showing up as complete correctly due to a floating point rounding error.
+
 2.0
 ---
 * Implemented current situation detection and filter.
-* Added tooltips to buttons
+* Added tooltips to buttons.
 * Completed experiment progress bars are now rendered in a different colour.
 * Replaced text on filter buttons with icons.
 * Fixed several memory leaks.

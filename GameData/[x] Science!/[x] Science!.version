@@ -5,7 +5,7 @@
     "CHANGE_LOG_URL":"https://bitbucket.org/Bodrick/x-science/raw/tip/CHANGES.md"
     "VERSION":
     {
-        "MAJOR":2,
+        "MAJOR":3,
         "MINOR":0,
         "PATCH":0
     },
