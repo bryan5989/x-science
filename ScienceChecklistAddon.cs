@@ -29,10 +29,13 @@ namespace ScienceChecklist {
 			_nextSituationUpdate = DateTime.Now;
 			GameEvents.onGUIApplicationLauncherReady.Add(Load);
 			GameEvents.onGUIApplicationLauncherDestroyed.Add(Unload);
-			GameEvents.OnScienceRecieved.Add(OnScienceReceived);
+			GameEvents.OnScienceRecieved.Add((x, y) => OnScienceReceived());
 			GameEvents.onVesselWasModified.Add(x => OnPartsChanged());
 			GameEvents.onVesselChange.Add(x => OnPartsChanged());
 			GameEvents.onEditorShipModified.Add(x => OnPartsChanged());
+			GameEvents.onVesselLoaded.Add(x => OnScienceReceived());
+			GameEvents.onGameStateSave.Add(x => OnScienceReceived());
+			GameEvents.OnPartPurchased.Add(x => OnScienceReceived());
 		}
 
 		public void Start () {
@@ -113,7 +116,7 @@ namespace ScienceChecklist {
 			}
 		}
 
-		private void OnScienceReceived (float scienceAmount, ScienceSubject subject) {
+		private void OnScienceReceived () {
 			if (!_active) {
 				return;
 			}

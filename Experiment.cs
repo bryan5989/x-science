@@ -6,12 +6,12 @@ using System.Text.RegularExpressions;
 
 namespace ScienceChecklist {
 	internal sealed class Experiment {
-		public Experiment (ScienceExperiment experiment, ScienceSubject subject, Situation situation, bool usesSubBiomes) {
+		public Experiment (ScienceExperiment experiment, ScienceSubject subject, Situation situation, bool usesSubBiomes, IEnumerable<ScienceData> onboardScience) {
 			_experiment = experiment;
 			_subject = subject;
 			_situation = situation;
 			_usesSubBiomes = usesSubBiomes;
-			Update();
+			Update(onboardScience);
 		}
 
 		#region PROPERTIES
@@ -40,7 +40,7 @@ namespace ScienceChecklist {
 
 		#region METHODS (PUBLIC)
 
-		public void Update () {
+		public void Update (IEnumerable<ScienceData> onboardScience) {
 			IsUnlocked = ScienceExperiment.id == "evaReport" ||
 				ScienceExperiment.id == "surfaceSample" ||
 				ScienceExperiment.id == "crewReport" ||
@@ -50,7 +50,17 @@ namespace ScienceChecklist {
 			TotalScience = _subject.scienceCap * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier;
 			IsComplete = CompletedScience > TotalScience || TotalScience - CompletedScience < 0.1;
 
-			OnboardScience = FlightGlobals.Vessels.Count;
+			var multiplier = ScienceExperiment.baseValue / ScienceExperiment.scienceCap;
+			
+			var data = onboardScience
+				.Where (x => x.subjectID == ScienceSubject.id)
+				.ToList ();
+			
+			OnboardScience = 0;
+			foreach (var i in data) {
+				var next = (TotalScience - (CompletedScience + OnboardScience)) * multiplier;
+				OnboardScience += next;
+			}
 		}
 
 		#endregion

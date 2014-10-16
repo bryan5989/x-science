@@ -105,6 +105,27 @@ namespace ScienceChecklist {
 
 			var subjects = ResearchAndDevelopment.GetSubjects();
 
+			var onboardScience = new List<ScienceData> ();
+			var vesselIds = new List<string> ();
+			foreach (var v in FlightGlobals.Vessels.Where(x => x.loaded))
+			{
+				onboardScience.AddRange(v
+					.FindPartModulesImplementing<IScienceDataContainer> ()
+					.SelectMany(y => y.GetData() ?? new ScienceData[0]));
+				vesselIds.Add(v.id.ToString().ToLower().Replace("-", ""));
+			}
+
+			// :|
+			var node = new ConfigNode();
+			HighLogic.CurrentGame.flightState.Save(node);
+			var vessels = node.GetNodes("VESSEL");
+
+			onboardScience.AddRange (vessels.SelectMany(x => x.GetNodes("PART")
+				.SelectMany(y => y.GetNodes("MODULE")
+					.SelectMany(z => z.GetNodes("ScienceData"))
+					.Where(z => !vesselIds.Contains(x.GetValue("pid")))
+					.Select(z => new ScienceData(z)))));
+
 			foreach (var experiment in experiments.Keys) {
 				var useSubBiomes = true;
 				var sitMask = experiment.situationMask;
@@ -163,7 +184,7 @@ namespace ScienceChecklist {
 									.Where (x => x.id == GetId(experiment, body, situation, biome))
 									.SingleOrDefault () ?? new ScienceSubject(experiment, situation, body, biome);
 
-								exps.Add(new Experiment(experiment, subject, new Situation(body, situation, biome), useSubBiomes));
+								exps.Add(new Experiment(experiment, subject, new Situation(body, situation, biome), useSubBiomes, onboardScience));
 							}
 
 							if ((body.name == "Kerbin") && situation == ExperimentSituations.SrfLanded && useSubBiomes) {
@@ -173,7 +194,7 @@ namespace ScienceChecklist {
 										.SingleOrDefault() ?? new ScienceSubject(experiment, situation, body, kscBiome);
 
 									// Ew.
-									exps.Add(new Experiment(experiment, subject, new Situation(body, situation, "Shores", kscBiome), useSubBiomes));
+									exps.Add(new Experiment(experiment, subject, new Situation(body, situation, "Shores", kscBiome), useSubBiomes, onboardScience));
 								}
 							}
 
@@ -181,7 +202,7 @@ namespace ScienceChecklist {
 							var subject = subjects
 								.Where(x => x.id == GetId(experiment, body, situation))
 								.SingleOrDefault() ?? new ScienceSubject(experiment, situation, body);
-							exps.Add(new Experiment(experiment, subject, new Situation(body, situation), useSubBiomes));
+							exps.Add(new Experiment(experiment, subject, new Situation(body, situation), useSubBiomes, onboardScience));
 						}
 					}
 				}

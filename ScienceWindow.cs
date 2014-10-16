@@ -129,7 +129,14 @@ namespace ScienceChecklist {
 			var subBiome = string.IsNullOrEmpty(vessel.landedAt)
 				? null
 				: Vessel.GetLandedAtString(vessel.landedAt).Replace(" ", "");
-			
+
+			var dataCount = vessel.FindPartModulesImplementing<IScienceDataContainer>().Sum(x => x.GetData().Length);
+
+			if (_lastDataCount != dataCount) {
+				_lastDataCount = dataCount;
+				RefreshScience();
+			}
+
 			if (_filter.CurrentSituation != null && _filter.CurrentSituation.Biome == biome && _filter.CurrentSituation.ExperimentSituation == situation && _filter.CurrentSituation.Body == body && _filter.CurrentSituation.SubBiome == subBiome) {
 				return;
 			}
@@ -256,19 +263,17 @@ namespace ScienceChecklist {
 				y = rect.y + 1,
 			};
 
-			if (ExperimentalFeatures.ShowOnboardScience) {
-				if (curr2 != 0 && !complete) {
-					var complete2 = false;
-					if (curr2 > total || (total - curr2 < 0.1)) {
-						curr2 = total;
-						complete2 = true;
-					}
-					_skin.horizontalScrollbarThumb.normal.background = curr2 < 0.1
-						? _emptyTexture
-						: complete2 ? _completeTexture : _progressTexture;
-
-					GUI.HorizontalScrollbar(progressRect, 0, curr2 / total, 0, 1, _horizontalScrollbarOnboardStyle);
+			if (curr2 != 0 && !complete) {
+				var complete2 = false;
+				if (curr2 > total || (total - curr2 < 0.1)) {
+					curr2 = total;
+					complete2 = true;
 				}
+				_skin.horizontalScrollbarThumb.normal.background = curr2 < 0.1
+					? _emptyTexture
+					: complete2 ? _completeTexture : _progressTexture;
+
+				GUI.HorizontalScrollbar(progressRect, 0, curr2 / total, 0, 1, _horizontalScrollbarOnboardStyle);
 			}
 
 			_skin.horizontalScrollbarThumb.normal.background = curr < 0.1
@@ -301,6 +306,7 @@ namespace ScienceChecklist {
 
 		private string _lastTooltip;
 		private bool _showSettings;
+		private int _lastDataCount;
 
 		private readonly Texture2D _progressTexture;
 		private readonly Texture2D _completeTexture;

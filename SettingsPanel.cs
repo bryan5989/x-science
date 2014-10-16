@@ -14,8 +14,7 @@ namespace ScienceChecklist
 		public void Draw () {
 			GUILayout.BeginVertical();
 
-			GUILayout.Label("Experimental features");
-			ExperimentalFeatures.ShowOnboardScience = GUILayout.Toggle(ExperimentalFeatures.ShowOnboardScience, "Show onboard science");
+			GUILayout.Label("Nothing here yet...");
 
 			GUILayout.EndVertical();
 		}
