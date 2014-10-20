@@ -116,11 +116,11 @@ namespace ScienceChecklist {
 		}
 
 		/// <summary>
-		/// Refreshes the experiment cache.
+		/// Refreshes the experiment cache. EXPENSIVE.
 		/// </summary>
-		public void RefreshScience () {
-			_logger.Trace("RefreshScience");
-			_filter.RefreshExperiments();
+		public void RefreshExperimentCache () {
+			_logger.Trace("RefreshExperimentCache");
+			_filter.RefreshExperimentCache();
 		}
 
 		/// <summary>
@@ -129,6 +129,14 @@ namespace ScienceChecklist {
 		public void RefreshFilter () {
 			_logger.Trace("RefreshFilter");
 			_filter.UpdateFilter();
+		}
+
+		/// <summary>
+		/// Updates all experiments.
+		/// </summary>
+		public void UpdateExperiments () {
+			_logger.Trace("UpdateExperiments");
+			_filter.UpdateExperiments();
 		}
 
 		/// <summary>
@@ -155,7 +163,7 @@ namespace ScienceChecklist {
 
 			if (_lastDataCount != dataCount) {
 				_lastDataCount = dataCount;
-				RefreshScience();
+				UpdateExperiments();
 			}
 
 			if (_filter.CurrentSituation != null && _filter.CurrentSituation.Biome == biome && _filter.CurrentSituation.ExperimentSituation == situation && _filter.CurrentSituation.Body == body && _filter.CurrentSituation.SubBiome == subBiome) {

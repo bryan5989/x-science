@@ -35,13 +35,12 @@ namespace ScienceChecklist {
 			_nextSituationUpdate = DateTime.Now;
 			GameEvents.onGUIApplicationLauncherReady.Add(Load);
 			GameEvents.onGUIApplicationLauncherDestroyed.Add(Unload);
-			GameEvents.OnScienceRecieved.Add((x, y) => OnScienceReceived());
+			GameEvents.OnScienceRecieved.Add((x, y) => UpdateExperiments());
 			GameEvents.onVesselWasModified.Add(x => OnPartsChanged());
 			GameEvents.onVesselChange.Add(x => OnPartsChanged());
 			GameEvents.onEditorShipModified.Add(x => OnPartsChanged());
-			GameEvents.onVesselLoaded.Add(x => OnScienceReceived());
-			GameEvents.onGameStateSave.Add(x => OnScienceReceived());
-			GameEvents.OnPartPurchased.Add(x => OnScienceReceived());
+			GameEvents.onGameStateSave.Add(x => UpdateExperiments());
+			GameEvents.OnPartPurchased.Add(x => UpdateExperiments());
 		}
 
 		/// <summary>
@@ -116,6 +115,12 @@ namespace ScienceChecklist {
 
 			_rndLoader = WaitForRnDAndPartLoader();
 			StartCoroutine(_rndLoader);
+
+			_experimentUpdater = UpdateExperiments();
+			StartCoroutine(_experimentUpdater);
+
+			_filterRefresher = RefreshFilter();
+			StartCoroutine(_filterRefresher);
 		}
 
 		/// <summary>
@@ -138,28 +143,36 @@ namespace ScienceChecklist {
 			if (_rndLoader != null) {
 				StopCoroutine(_rndLoader);
 			}
+
+			if (_experimentUpdater != null) {
+				StopCoroutine(_experimentUpdater);
+			}
+
+			if (_filterRefresher != null) {
+				StopCoroutine(_filterRefresher);
+			}
 		}
 
 		/// <summary>
-		/// Refreshes the experiment cache.
+		/// Schedules a refresh of the experiment cache.
 		/// </summary>
 		private void OnScienceReceived () {
 			if (!_active) {
 				return;
 			}
 			_logger.Trace("OnScienceReceived");
-			_window.RefreshScience();
+			_experimentUpdatePending = true;
 		}
 
 		/// <summary>
-		/// Refreshes the experiment filter.
+		/// Schedules a refresh of the experiment filter.
 		/// </summary>
 		private void OnPartsChanged () {
 			if (!_active) {
 				return;
 			}
 			_logger.Trace("OnPartsChanged");
-			_window.RefreshFilter();
+			_filterRefreshPending = true;
 		}
 
 		/// <summary>
@@ -182,8 +195,42 @@ namespace ScienceChecklist {
 			}
 
 			_logger.Info("PartLoader ready");
-			_window.RefreshScience();
+			_window.RefreshExperimentCache();
 			_rndLoader = null;
+		}
+
+		/// <summary>
+		/// Coroutine to throttle calls to _window.UpdateExperiments.
+		/// </summary>
+		/// <returns></returns>
+		private IEnumerator UpdateExperiments () {
+			var nextCheck = DateTime.Now;
+			while (true) {
+				if (_experimentUpdatePending) {
+					nextCheck = DateTime.Now.AddSeconds(1);
+					_window.UpdateExperiments();
+					_experimentUpdatePending = false;
+				}
+
+				yield return 0;
+			}
+		}
+
+		/// <summary>
+		/// Coroutine to throttle calls to _window.RefreshFilter.
+		/// </summary>
+		/// <returns></returns>
+		private IEnumerator RefreshFilter () {
+			var nextCheck = DateTime.Now;
+			while (true) {
+				if (_filterRefreshPending && DateTime.Now > nextCheck) {
+					nextCheck = DateTime.Now.AddSeconds(0.5);
+					_window.RefreshFilter();
+					_filterRefreshPending = false;
+				}
+
+				yield return 0;
+			}
 		}
 
 		/// <summary>
@@ -261,6 +308,11 @@ namespace ScienceChecklist {
 		private bool _buttonClicked;
 		private ScienceWindow _window;
 		private IEnumerator _rndLoader;
+
+		private bool _experimentUpdatePending;
+		private IEnumerator _experimentUpdater;
+		private bool _filterRefreshPending;
+		private IEnumerator _filterRefresher;
 
 		private static bool _addonInitialized;
 

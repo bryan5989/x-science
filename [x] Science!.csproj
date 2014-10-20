@@ -57,6 +57,7 @@
     <Compile Include="Experiment.cs" />
     <Compile Include="ExperimentalFeatures.cs" />
     <Compile Include="ExperimentFilter.cs" />
+    <Compile Include="GameHelper.cs" />
     <Compile Include="ScienceChecklistAddon.cs" />
     <Compile Include="ScienceWindow.cs" />
     <Compile Include="SettingsPanel.cs" />

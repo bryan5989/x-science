@@ -95,12 +95,31 @@ namespace ScienceChecklist {
 		}
 
 		/// <summary>
-		/// Refreshes the experiment cache.
+		/// Calls the Update method on all experiments.
 		/// </summary>
-		public void RefreshExperiments () {
-			_logger.Trace("RefreshExperiments");
+		public void UpdateExperiments () {
+			_logger.Trace("UpdateExperiments");
+			var onboardScience = GameHelper.GetOnboardScience();
+
+			foreach (var exp in _allExperiments) {
+				exp.Update(onboardScience);
+			}
+		}
+
+		/// <summary>
+		/// Refreshes the experiment cache. THIS IS VERY EXPENSIVE.
+		/// </summary>
+		public void RefreshExperimentCache () {
+			_logger.Info("RefreshExperimentCache");
 			if (ResearchAndDevelopment.Instance == null) {
 				_logger.Debug("ResearchAndDevelopment not instantiated.");
+				_allExperiments = new List<Experiment>();
+				UpdateFilter();
+				return;
+			}
+
+			if (PartLoader.Instance == null) {
+				_logger.Debug("PartLoader not instantiated.");
 				_allExperiments = new List<Experiment>();
 				UpdateFilter();
 				return;
@@ -138,26 +157,7 @@ namespace ScienceChecklist {
 
 			var subjects = ResearchAndDevelopment.GetSubjects();
 
-			var onboardScience = new List<ScienceData> ();
-			var vesselIds = new List<string> ();
-			foreach (var v in FlightGlobals.Vessels.Where(x => x.loaded))
-			{
-				onboardScience.AddRange(v
-					.FindPartModulesImplementing<IScienceDataContainer> ()
-					.SelectMany(y => y.GetData() ?? new ScienceData[0]));
-				vesselIds.Add(v.id.ToString().ToLower().Replace("-", ""));
-			}
-
-			// :|
-			var node = new ConfigNode();
-			HighLogic.CurrentGame.flightState.Save(node);
-			var vessels = node.GetNodes("VESSEL");
-
-			onboardScience.AddRange (vessels.SelectMany(x => x.GetNodes("PART")
-				.SelectMany(y => y.GetNodes("MODULE")
-					.SelectMany(z => z.GetNodes("ScienceData"))
-					.Where(z => !vesselIds.Contains(x.GetValue("pid")))
-					.Select(z => new ScienceData(z)))));
+			var onboardScience = GameHelper.GetOnboardScience();
 
 			foreach (var experiment in experiments.Keys) {
 				var useSubBiomes = true;
@@ -297,7 +297,6 @@ namespace ScienceChecklist {
 		/// <param name="src">The source experiment collection.</param>
 		/// <returns>A filtered collection of experiments that can be performed on the current vessel.</returns>
 		private IEnumerable<Experiment> ApplyActiveVesselFilter (IEnumerable<Experiment> src) {
-			_logger.Trace("ApplyActiveVesselFilter");
 			switch (HighLogic.LoadedScene) {
 				case GameScenes.FLIGHT:
 					var vessel = FlightGlobals.ActiveVessel;
@@ -331,7 +330,6 @@ namespace ScienceChecklist {
 		/// <param name="hasCrew">A flag indicating whether the modules currently have crew onboard.</param>
 		/// <returns>A filtered collection of experiments that can be performed on a vessel made from the given modules.</returns>
 		private IEnumerable<Experiment> ApplyPartFilter (IEnumerable<Experiment> src, IEnumerable<ModuleScienceExperiment> modules, bool hasCrew) {
-			_logger.Trace("ApplyPartFilter");
 			var experiments = modules
 				.Select(x => x.experimentID)
 				.Distinct();
