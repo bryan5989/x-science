@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace ScienceChecklist
-{
+namespace ScienceChecklist {
 	internal sealed class SettingsPanel {
-		public SettingsPanel() {
-			_logger = new Logger (this);
+		public SettingsPanel () {
+			_logger = new Logger(this);
 		}
 
 		public void Draw () {

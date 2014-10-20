@@ -5,7 +5,18 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 namespace ScienceChecklist {
+	/// <summary>
+	/// An object that represents a ScienceExperiement in a given situation.
+	/// </summary>
 	internal sealed class Experiment {
+		/// <summary>
+		/// Creates a new instance of the Experiment class.
+		/// </summary>
+		/// <param name="experiment">The ScienceExperiment to be used.</param>
+		/// <param name="subject">The existing ScienceSubject data.</param>
+		/// <param name="situation">The Situation this experiment is valid in.</param>
+		/// <param name="usesSubBiomes">Indicates whether this experiment uses the special KSC biomes.</param>
+		/// <param name="onboardScience">A collection of all onboard ScienceData.</param>
 		public Experiment (ScienceExperiment experiment, ScienceSubject subject, Situation situation, bool usesSubBiomes, IEnumerable<ScienceData> onboardScience) {
 			_experiment = experiment;
 			_subject = subject;
@@ -16,17 +27,47 @@ namespace ScienceChecklist {
 
 		#region PROPERTIES
 
+		/// <summary>
+		/// Gets the ScienceExperiment used by ResearchAndDevelopment.
+		/// </summary>
 		public ScienceExperiment    ScienceExperiment { get { return _experiment; } }
+		/// <summary>
+		/// Gets the ScienceSubject containing information on how much science has been retrieved from this experiment.
+		/// </summary>
 		public ScienceSubject       ScienceSubject    { get { return _subject; } }
+		/// <summary>
+		/// Gets the Situation in which this experiment is valid.
+		/// </summary>
 		public Situation            Situation         { get { return _situation; } }
+		/// <summary>
+		/// Gets a value indicating whether this experiment uses the special KSC biomes.
+		/// </summary>
 		public bool                 UsesSubBiomes     { get { return _usesSubBiomes; } }
 
+		/// <summary>
+		/// Gets the amount of science completed for this experiment.
+		/// </summary>
 		public float  CompletedScience { get; private set; }
+		/// <summary>
+		/// Gets a value indicating if this experiment has been unlocked in the tech tree.
+		/// </summary>
 		public bool   IsUnlocked       { get; private set; }
+		/// <summary>
+		/// Gets the total amount of science available for this experiment.
+		/// </summary>
 		public float  TotalScience     { get; private set; }
+		/// <summary>
+		/// Gets a value indicating whether all the science has been obtained for this experiment.
+		/// </summary>
 		public bool   IsComplete       { get; private set; }
+		/// <summary>
+		/// Gets the amount of science for this experiment that is currently stored on vessels.
+		/// </summary>
 		public float  OnboardScience   { get; private set; }
 
+		/// <summary>
+		/// Gets the human-readable description of this experiment.
+		/// </summary>
 		public string Description {
 			get {
 				return string.Format(
@@ -40,6 +81,10 @@ namespace ScienceChecklist {
 
 		#region METHODS (PUBLIC)
 
+		/// <summary>
+		/// Updates the IsUnlocked, CompletedScience, TotalScience, OnboardScience, and IsComplete fields.
+		/// </summary>
+		/// <param name="onboardScience">The total onboard ScienceData.</param>
 		public void Update (IEnumerable<ScienceData> onboardScience) {
 			IsUnlocked = ScienceExperiment.id == "evaReport" ||
 				ScienceExperiment.id == "surfaceSample" ||

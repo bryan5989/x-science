@@ -5,7 +5,13 @@ using System.Text;
 using UnityEngine;
 
 namespace ScienceChecklist {
+	/// <summary>
+	/// Renders a window containing experiments to the screen.
+	/// </summary>
 	internal sealed class ScienceWindow {
+		/// <summary>
+		/// Creates a new instance of the ScienceWindow class.
+		/// </summary>
 		public ScienceWindow () {
 			_logger = new Logger(this);
 			_rect = new Rect(40, 40, 500, 400);
@@ -30,12 +36,18 @@ namespace ScienceChecklist {
 
 		#region PROPERTIES
 
+		/// <summary>
+		/// Gets or sets a value indicating whether this window should be drawn.
+		/// </summary>
 		public bool IsVisible { get; set; }
 
 		#endregion
 
 		#region METHODS (PUBLIC)
 
+		/// <summary>
+		/// Draws the window if it is visible.
+		/// </summary>
 		public void Draw () {
 			if (!IsVisible) {
 				return;
@@ -103,16 +115,25 @@ namespace ScienceChecklist {
 			GUI.skin = oldSkin;
 		}
 
+		/// <summary>
+		/// Refreshes the experiment cache.
+		/// </summary>
 		public void RefreshScience () {
 			_logger.Trace("RefreshScience");
 			_filter.RefreshExperiments();
 		}
 
+		/// <summary>
+		/// Refreshes the experiment filter.
+		/// </summary>
 		public void RefreshFilter () {
 			_logger.Trace("RefreshFilter");
 			_filter.UpdateFilter();
 		}
 
+		/// <summary>
+		/// Recalculates the current situation of the active vessel.
+		/// </summary>
 		public void RecalculateSituation () {
 			var vessel = FlightGlobals.ActiveVessel;
 			if (vessel == null) {
@@ -148,6 +169,10 @@ namespace ScienceChecklist {
 
 		#region METHODS (PRIVATE)
 
+		/// <summary>
+		/// Draws the controls inside the window.
+		/// </summary>
+		/// <param name="windowId"></param>
 		private void DrawControls (int windowId) {
 			GUILayout.BeginHorizontal ();
 			GUILayout.BeginVertical(GUILayout.Width(480), GUILayout.ExpandHeight(true));
@@ -239,6 +264,11 @@ namespace ScienceChecklist {
 			}
 		}
 
+		/// <summary>
+		/// Draws an experiment inside the given Rect.
+		/// </summary>
+		/// <param name="exp">The experiment to render.</param>
+		/// <param name="rect">The rect inside which the experiment should be rendered.</param>
 		private void DrawExperiment (Experiment exp, Rect rect) {
 			_labelStyle.normal.textColor = exp.IsComplete ? Color.green : Color.yellow;
 			var labelRect = new Rect(rect) {
@@ -254,6 +284,14 @@ namespace ScienceChecklist {
 			ProgressBar(progressRect, exp.CompletedScience, exp.TotalScience, exp.CompletedScience + exp.OnboardScience, true);
 		}
 
+		/// <summary>
+		/// Draws a progress bar inside the given Rect.
+		/// </summary>
+		/// <param name="rect">The rect inside which the progress bar should be rendered.</param>
+		/// <param name="curr">The completed progress value.</param>
+		/// <param name="total">The total progress value.</param>
+		/// <param name="curr2">The shaded progress value (used to show onboard science).</param>
+		/// <param name="showValues">Whether to draw the curr and total values on top of the progress bar.</param>
 		private void ProgressBar (Rect rect, float curr, float total, float curr2, bool showValues) {
 			var complete = curr > total || (total - curr < 0.1);
 			if (complete) {

@@ -9,8 +9,6 @@ namespace ScienceChecklist {
 	/// Class for helping with log messages.
 	/// </summary>
 	internal sealed class Logger {
-		private const LogLevel MaxLogLevel = LogLevel.Trace;
-
 		/// <summary>
 		/// Creates a new instance of the Logger class.
 		/// </summary>
@@ -114,6 +112,8 @@ namespace ScienceChecklist {
 		#region FIELDS
 
 		private readonly string _ownerName;
+
+		private const LogLevel MaxLogLevel = LogLevel.Trace;
 
 		#endregion
 

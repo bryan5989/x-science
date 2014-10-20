@@ -5,7 +5,15 @@ using System.Linq;
 using System.Text;
 
 namespace ScienceChecklist {
+	/// <summary>
+	/// Contains extension methods on the Stream class.
+	/// </summary>
 	internal static class StreamEx {
+		/// <summary>
+		/// Reads the Stream to the end and returns a byte array containing the contents of the Stream.
+		/// </summary>
+		/// <param name="stream">The stream to be read.</param>
+		/// <returns>A byte array containing the contents of the Stream.</returns>
 		public static byte[] ReadToEnd (this Stream stream) {
 			long originalPosition = 0;
 

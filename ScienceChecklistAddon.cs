@@ -6,11 +6,17 @@ using System.Text;
 using UnityEngine;
 
 namespace ScienceChecklist {
+	/// <summary>
+	/// The main entry point into the addon. Constructed by the KSP addon loader.
+	/// </summary>
 	[KSPAddon(KSPAddon.Startup.MainMenu, true)]
 	public sealed class ScienceChecklistAddon : MonoBehaviour {
 
 		#region METHODS (PUBLIC)
 
+		/// <summary>
+		/// Called by Unity once to initialize the class.
+		/// </summary>
 		public void Awake () {
 			if (_addonInitialized == true) {
 				// For some reason the addon can be instantiated several times by the KSP addon loader (generally when going to/from the VAB),
@@ -38,17 +44,26 @@ namespace ScienceChecklist {
 			GameEvents.OnPartPurchased.Add(x => OnScienceReceived());
 		}
 
+		/// <summary>
+		/// Called by Unity once to initialize the class, just before Update is called.
+		/// </summary>
 		public void Start () {
 			_logger.Trace("Start");
 			DontDestroyOnLoad(this);
 		}
 
+		/// <summary>
+		/// Called by Unity when the application is destroyed.
+		/// </summary>
 		public void OnApplicationQuit () {
 			_logger.Trace("OnApplicationQuit");
 			_button.Open -= Button_Open;
 			_button.Close -= Button_Close;
 		}
 
+		/// <summary>
+		/// Called by Unity once per frame.
+		/// </summary>
 		public void Update () {
 			if (!_active) {
 				return;
@@ -62,6 +77,9 @@ namespace ScienceChecklist {
 			_window.RecalculateSituation();
 		}
 
+		/// <summary>
+		/// Called by Unity to draw the GUI - can be called many times per frame.
+		/// </summary>
 		public void OnGUI () {
 			_window.Draw();
 		}
@@ -70,6 +88,9 @@ namespace ScienceChecklist {
 
 		#region METHODS (PRIVATE)
 
+		/// <summary>
+		/// Initializes the addon if it hasn't already been loaded.
+		/// </summary>
 		private void Load () {
 			_logger.Trace("Load");
 			if (_active) {
@@ -97,6 +118,9 @@ namespace ScienceChecklist {
 			StartCoroutine(_rndLoader);
 		}
 
+		/// <summary>
+		/// Unloads the addon if it has been loaded.
+		/// </summary>
 		private void Unload () {
 			_logger.Trace("Unload");
 			if (!_active) {
@@ -116,6 +140,9 @@ namespace ScienceChecklist {
 			}
 		}
 
+		/// <summary>
+		/// Refreshes the experiment cache.
+		/// </summary>
 		private void OnScienceReceived () {
 			if (!_active) {
 				return;
@@ -124,6 +151,9 @@ namespace ScienceChecklist {
 			_window.RefreshScience();
 		}
 
+		/// <summary>
+		/// Refreshes the experiment filter.
+		/// </summary>
 		private void OnPartsChanged () {
 			if (!_active) {
 				return;
@@ -132,6 +162,10 @@ namespace ScienceChecklist {
 			_window.RefreshFilter();
 		}
 
+		/// <summary>
+		/// Waits for the ResearchAndDevelopment and PartLoader instances to be available.
+		/// </summary>
+		/// <returns>An IEnumerator that can be used to resume this method.</returns>
 		private IEnumerator WaitForRnDAndPartLoader () {
 			if (!_active) {
 				yield break;
@@ -152,6 +186,11 @@ namespace ScienceChecklist {
 			_rndLoader = null;
 		}
 
+		/// <summary>
+		/// Called when the toolbar button is toggled on.
+		/// </summary>
+		/// <param name="sender">The sender of the event.</param>
+		/// <param name="e">The EventArgs of the event.</param>
 		private void Button_Open (object sender, EventArgs e) {
 			if (!_active) {
 				return;
@@ -161,6 +200,11 @@ namespace ScienceChecklist {
 			UpdateVisibility();
 		}
 
+		/// <summary>
+		/// Called when the toolbar button is toggled off.
+		/// </summary>
+		/// <param name="sender">The sender of the event.</param>
+		/// <param name="e">The EventArgs of the event.</param>
 		private void Button_Close (object sender, EventArgs e) {
 			if (!_active) {
 				return;
@@ -170,6 +214,9 @@ namespace ScienceChecklist {
 			UpdateVisibility();
 		}
 
+		/// <summary>
+		/// Called when the KSP toolbar is shown.
+		/// </summary>
 		private void Launcher_Show () {
 			if (!_active) {
 				return;
@@ -179,6 +226,9 @@ namespace ScienceChecklist {
 			UpdateVisibility();
 		}
 
+		/// <summary>
+		/// Called when the KSP toolbar is hidden.
+		/// </summary>
 		private void Launcher_Hide () {
 			if (!_active) {
 				return;
@@ -188,6 +238,9 @@ namespace ScienceChecklist {
 			UpdateVisibility();
 		}
 
+		/// <summary>
+		/// Shows or hides the ScienceWindow iff the KSP toolbar is visible and the toolbar button is toggled on.
+		/// </summary>
 		private void UpdateVisibility () {
 			if (!_active) {
 				return;

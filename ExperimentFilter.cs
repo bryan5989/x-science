@@ -6,7 +6,13 @@ using System.Text;
 using UnityEngine;
 
 namespace ScienceChecklist {
+	/// <summary>
+	/// Stores a cache of experiments available in the game, and provides methods to manipulate a filtered view of this collection.
+	/// </summary>
 	internal sealed class ExperimentFilter {
+		/// <summary>
+		/// Creates a new instance of the ExperimentFilter class.
+		/// </summary>
 		public ExperimentFilter () {
 			_logger = new Logger(this);
 			_displayMode = DisplayMode.Unlocked;
@@ -15,11 +21,26 @@ namespace ScienceChecklist {
 			_kscBiomes = new List<string>();
 		}
 
+		/// <summary>
+		/// Gets all experiments that are available in the game.
+		/// </summary>
 		public IList<Experiment> AllExperiments     { get { return _allExperiments; } }
+		/// <summary>
+		/// Gets the experiments that should currently be displayed in the experiment list.
+		/// </summary>
 		public IList<Experiment> DisplayExperiments { get { return _displayExperiments; } }
+		/// <summary>
+		/// Gets the number of display experiments that are complete.
+		/// </summary>
 		public int               CompleteCount      { get; private set; }
+		/// <summary>
+		/// Gets the total number of display experiments.
+		/// </summary>
 		public int               TotalCount         { get; private set; }
 
+		/// <summary>
+		/// Gets or sets a value indicating the current mode of the filter.
+		/// </summary>
 		public DisplayMode DisplayMode {
 			get {
 				return _displayMode;
@@ -31,6 +52,9 @@ namespace ScienceChecklist {
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets a value indicating whether to hide completed experiments.
+		/// </summary>
 		public bool HideComplete {
 			get {
 				return _hideComplete;
@@ -42,6 +66,9 @@ namespace ScienceChecklist {
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets a string to be used for filtering experiments.
+		/// </summary>
 		public string Text {
 			get {
 				return _text;
@@ -53,6 +80,9 @@ namespace ScienceChecklist {
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the current situation.
+		/// </summary>
 		public Situation CurrentSituation {
 			get {
 				return _situation;
@@ -64,6 +94,9 @@ namespace ScienceChecklist {
 			}
 		}
 
+		/// <summary>
+		/// Refreshes the experiment cache.
+		/// </summary>
 		public void RefreshExperiments () {
 			_logger.Trace("RefreshExperiments");
 			if (ResearchAndDevelopment.Instance == null) {
@@ -212,6 +245,9 @@ namespace ScienceChecklist {
 			UpdateFilter();
 		}
 
+		/// <summary>
+		/// Recalculates the experiments to be displayed.
+		/// </summary>
 		public void UpdateFilter () {
 			_logger.Trace("UpdateFilter");
 			var query = _allExperiments.AsEnumerable();
@@ -243,10 +279,23 @@ namespace ScienceChecklist {
 			_displayExperiments = query.Where (x => !HideComplete || !x.IsComplete).ToList();
 		}
 
+		/// <summary>
+		/// Gets the ResearchAndDevelopment ID for a given experiment and situation.
+		/// </summary>
+		/// <param name="exp">The experiment to get the ID for.</param>
+		/// <param name="body">The CelestialBody this experiment is for.</param>
+		/// <param name="sit">The ExperimentSituations this experiment is for.</param>
+		/// <param name="biome">Optionally, the biome this experiment is for.</param>
+		/// <returns>The ResearchAndDevelopmentID for the experiment.</returns>
 		private string GetId (ScienceExperiment exp, CelestialBody body, ExperimentSituations sit, string biome = null) {
 			return string.Format("{0}@{1}{2}{3}", exp.id, body.name, sit, biome ?? string.Empty);
 		}
 
+		/// <summary>
+		/// Filters a collection of experiments to only return ones that can be performed on the current vessel.
+		/// </summary>
+		/// <param name="src">The source experiment collection.</param>
+		/// <returns>A filtered collection of experiments that can be performed on the current vessel.</returns>
 		private IEnumerable<Experiment> ApplyActiveVesselFilter (IEnumerable<Experiment> src) {
 			_logger.Trace("ApplyActiveVesselFilter");
 			switch (HighLogic.LoadedScene) {
@@ -274,6 +323,13 @@ namespace ScienceChecklist {
 			}
 		}
 
+		/// <summary>
+		/// Filters a collection of experiments to only return ones that can be performed on a vessel made from the given modules.
+		/// </summary>
+		/// <param name="src">The source experiment collection.</param>
+		/// <param name="modules">The available modules.</param>
+		/// <param name="hasCrew">A flag indicating whether the modules currently have crew onboard.</param>
+		/// <returns>A filtered collection of experiments that can be performed on a vessel made from the given modules.</returns>
 		private IEnumerable<Experiment> ApplyPartFilter (IEnumerable<Experiment> src, IEnumerable<ModuleScienceExperiment> modules, bool hasCrew) {
 			_logger.Trace("ApplyPartFilter");
 			var experiments = modules
@@ -284,6 +340,11 @@ namespace ScienceChecklist {
 				(hasCrew && (x.ScienceExperiment.id == "crewReport" || x.ScienceExperiment.id == "surfaceSample" || x.ScienceExperiment.id == "evaReport"))); // manned
 		}
 
+		/// <summary>
+		/// Filters a collection of experiments to only return ones that can be performed in the current situation.
+		/// </summary>
+		/// <param name="src">The source experiment collection</param>
+		/// <returns>A filtered collection of experiments that can be performed in the current situation.</returns>
 		private IEnumerable<Experiment> ApplyCurrentSituationFilter (IEnumerable<Experiment> src) {
 			if (HighLogic.LoadedScene != GameScenes.FLIGHT || CurrentSituation == null) {
 				return Enumerable.Empty<Experiment>();

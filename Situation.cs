@@ -5,7 +5,17 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 namespace ScienceChecklist {
+	/// <summary>
+	/// A location in which an experiment is valid.
+	/// </summary>
 	internal sealed class Situation {
+		/// <summary>
+		/// Creates a new instance of the Situation class.
+		/// </summary>
+		/// <param name="body">The CelestialBody around which this situation is for.</param>
+		/// <param name="situation">The ExperimentSituations flag which this situation is for.</param>
+		/// <param name="biome">Optionally, the biome which this situation is for.</param>
+		/// <param name="subBiome">Optionally, the KSC biome which this situation is for.</param>
 		public Situation (CelestialBody body, ExperimentSituations situation, string biome = null, string subBiome = null) {
 			_body = body;
 			_situation = situation;
@@ -23,14 +33,40 @@ namespace ScienceChecklist {
 						: string.Format("'s {0} ({1})", _formattedSubBiome, _formattedBiome));
 		}
 
+		/// <summary>
+		/// Gets the CelestialBody this situation is for.
+		/// </summary>
 		public CelestialBody        Body                { get { return _body; } }
+		/// <summary>
+		/// Gets the ExperimentSituations this situation is for.
+		/// </summary>
 		public ExperimentSituations ExperimentSituation { get { return _situation; } }
+		/// <summary>
+		/// Gets the biome this situation is for.
+		/// </summary>
 		public string               Biome               { get { return _biome; } }
+		/// <summary>
+		/// Gets the KSC biome this situation is for.
+		/// </summary>
 		public string               SubBiome            { get { return _subBiome; } }
+		/// <summary>
+		/// Gets the human-readable biome this situation is for.
+		/// </summary>
 		public string               FormattedBiome      { get { return _formattedBiome; } }
+		/// <summary>
+		/// Gets the human-readable KSC biome this situation is for.
+		/// </summary>
 		public string               FormattedSubBiome   { get { return _formattedSubBiome; } }
+		/// <summary>
+		/// Gets the human-readable description for this situation.
+		/// </summary>
 		public string               Description         { get { return _description; } }
 
+		/// <summary>
+		/// Converts an ExperimentSituations to a human-readable representation.
+		/// </summary>
+		/// <param name="situation">The ExperimentSituations to be converted.</param>
+		/// <returns>The human-readable form of the ExperimentSituations.</returns>
 		private string ToString (ExperimentSituations situation) {
 			switch (situation) {
 				case ExperimentSituations.FlyingHigh:
@@ -50,6 +86,11 @@ namespace ScienceChecklist {
 			}
 		}
 
+		/// <summary>
+		/// Converts a biome to a human-readable representation.
+		/// </summary>
+		/// <param name="biome">The biome to be converted.</param>
+		/// <returns>The human-readable form of the biome.</returns>
 		private string BiomeToString (string biome) {
 			return Regex.Replace(biome ?? string.Empty, "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1").Replace("  ", " ").Trim();
 		}
