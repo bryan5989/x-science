@@ -15,10 +15,13 @@ namespace ScienceChecklist {
 		public ScienceWindow () {
 			_logger = new Logger(this);
 			_rect = new Rect(40, 40, 500, 400);
+			_rect3 = new Rect(40, 40, 400, 200);
 			_scrollPos = new Vector2();
 			_filter = new ExperimentFilter();
 			_progressTexture = TextureHelper.FromResource("ScienceChecklist.scienceProgress.png", 13, 13);
 			_completeTexture = TextureHelper.FromResource("ScienceChecklist.scienceComplete.png", 13, 13);
+			_progressTextureCompact = TextureHelper.FromResource("ScienceChecklist.scienceProgressCompact.png", 8, 8);
+			_completeTextureCompact = TextureHelper.FromResource("ScienceChecklist.scienceCompleteCompact.png", 8, 8);
 			_currentSituationTexture = TextureHelper.FromResource("ScienceChecklist.icons.currentSituation.png", 25, 21);
 			_currentVesselTexture = TextureHelper.FromResource("ScienceChecklist.icons.currentVessel.png", 25, 21);
 			_unlockedTexture = TextureHelper.FromResource("ScienceChecklist.icons.unlocked.png", 25, 21);
@@ -28,6 +31,8 @@ namespace ScienceChecklist {
 			_searchTexture = TextureHelper.FromResource("ScienceChecklist.icons.search.png", 25, 21);
 			_clearSearchTexture = TextureHelper.FromResource("ScienceChecklist.icons.clearSearch.png", 25, 21);
 			_settingsTexture = TextureHelper.FromResource("ScienceChecklist.icons.settings.png", 25, 21);
+			_maximizeTexture = TextureHelper.FromResource("ScienceChecklist.icons.minimize.png", 25, 21);
+			_minimizeTexture = TextureHelper.FromResource("ScienceChecklist.icons.maximize.png", 25, 21);
 			_emptyTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
 			_emptyTexture.SetPixels(new[] { Color.clear });
 			_emptyTexture.Apply();
@@ -94,12 +99,29 @@ namespace ScienceChecklist {
 						background = _emptyTexture,
 					},
 				};
+
+				_compactWindowStyle = new GUIStyle(_skin.window) {
+					padding = new RectOffset(0, 2, 2, 2),
+				};
+
+				_compactLabelStyle = new GUIStyle(_labelStyle) {
+					fontSize = 9,
+				};
+
+				_compactSituationStyle = new GUIStyle(_situationStyle) {
+					fontSize = 11,
+					contentOffset = new Vector2(0, -3),
+				};
 			}
 
 			var oldSkin = GUI.skin;
 			GUI.skin = _skin;
 
-			_rect = GUILayout.Window(_windowId, _rect, DrawControls, "[x] Science!");
+			if (_compactMode) {
+				_rect3 = GUILayout.Window(_window3Id, _rect3, DrawCompactControls, string.Empty, _compactWindowStyle);
+			} else {
+				_rect = GUILayout.Window(_windowId, _rect, DrawControls, "[x] Science!");
+			}
 
 			if (!string.IsNullOrEmpty(_lastTooltip)) {
 				_tooltipStyle = _tooltipStyle ?? new GUIStyle(_skin.window) {
@@ -186,10 +208,11 @@ namespace ScienceChecklist {
 			GUILayout.BeginVertical(GUILayout.Width(480), GUILayout.ExpandHeight(true));
 
 			ProgressBar(
-				new Rect (10, 27, 480, 13),
+				new Rect (10, 27, 500, 13),
 				_filter.TotalCount == 0 ? 1 : _filter.CompleteCount,
 				_filter.TotalCount == 0 ? 1 : _filter.TotalCount,
 				0,
+				false,
 				false);
 
 			GUILayout.Space(20);
@@ -211,13 +234,13 @@ namespace ScienceChecklist {
 
 			var i = 0;
 			for (; i < _filter.DisplayExperiments.Count; i++) {
-				var rect = new Rect(5, 20 * i, 500, 20);
+				var rect = new Rect(5, 20 * i, _filter.DisplayExperiments.Count > 13 ? 490 : 500, 20);
 				if (rect.yMax < _scrollPos.y || rect.yMin > _scrollPos.y + 400) {
 					continue;
 				}
 
 				var experiment = _filter.DisplayExperiments[i];
-				DrawExperiment(experiment, rect);
+				DrawExperiment(experiment, rect, false, _labelStyle);
 			}
 
 			GUILayout.Space(20 * i);
@@ -250,6 +273,11 @@ namespace ScienceChecklist {
 				_showSettings = !_showSettings;
 				_rect.width = _showSettings ? 700 : 500;
 			}
+
+			var toggleCompact = GUILayout.Button(new GUIContent(_minimizeTexture, "Compact mode"));
+			if (toggleCompact) {
+				_compactMode = !_compactMode;
+			}
 			
 			GUILayout.EndHorizontal();
 			GUILayout.EndVertical ();
@@ -273,23 +301,67 @@ namespace ScienceChecklist {
 		}
 
 		/// <summary>
+		/// Draws the controls for the window in compact mode.
+		/// </summary>
+		/// <param name="windowId"></param>
+		private void DrawCompactControls (int windowId) {
+			GUILayout.BeginVertical();
+			_compactScrollPos = GUILayout.BeginScrollView(_compactScrollPos);
+			var i = 0;
+			for (; i < _filter.DisplayExperiments.Count; i++) {
+
+				var rect = new Rect(5, 15 * i, _filter.DisplayExperiments.Count > 11 ? 405 : 420, 20);
+				if (rect.yMax < _compactScrollPos.y || rect.yMin > _compactScrollPos.y + 400) {
+					continue;
+				}
+
+				var experiment = _filter.DisplayExperiments[i];
+				DrawExperiment(experiment, rect, true, _compactLabelStyle);
+			}
+
+			GUILayout.Space(15 * i);
+			GUILayout.EndScrollView();
+			GUILayout.EndVertical();
+
+			GUILayout.BeginHorizontal();
+			var toggleCompact = GUILayout.Button(new GUIContent(_maximizeTexture, "Normal mode"), GUILayout.Height(16), GUILayout.Width(16));
+			if (toggleCompact) {
+				_compactMode = !_compactMode;
+			}
+
+			GUILayout.FlexibleSpace();
+			if (_filter.CurrentSituation != null) {
+				var desc = _filter.CurrentSituation.Description;
+				GUILayout.Label(char.ToUpper(desc[0]) + desc.Substring(1), _compactSituationStyle, GUILayout.Height(16));
+			}
+			GUILayout.FlexibleSpace();
+			GUILayout.EndHorizontal();
+
+			GUI.DragWindow();
+		}
+
+		/// <summary>
 		/// Draws an experiment inside the given Rect.
 		/// </summary>
 		/// <param name="exp">The experiment to render.</param>
 		/// <param name="rect">The rect inside which the experiment should be rendered.</param>
-		private void DrawExperiment (Experiment exp, Rect rect) {
-			_labelStyle.normal.textColor = exp.IsComplete ? Color.green : Color.yellow;
+		/// <param name="compact">Whether this experiment is compact.</param>
+		/// <param name="labelStyle">The style to use for labels.</param>
+		private void DrawExperiment (Experiment exp, Rect rect, bool compact, GUIStyle labelStyle) {
+			labelStyle.normal.textColor = exp.IsComplete ? Color.green : Color.yellow;
 			var labelRect = new Rect(rect) {
-				y = rect.y + 3,
+				y = rect.y + (compact ? 1 : 3),
 			};
 			var progressRect = new Rect(rect) {
-				xMin = 395,
-				xMax = 460,
-				y = rect.y + 3,
+				xMin = rect.xMax - (compact ? 75 : 105),
+				xMax = rect.xMax - (compact ? 40 : 40),
+				y = rect.y + (compact ? 1 : 3),
 			};
 
-			GUI.Label(labelRect, exp.Description, _labelStyle);
-			ProgressBar(progressRect, exp.CompletedScience, exp.TotalScience, exp.CompletedScience + exp.OnboardScience, true);
+			GUI.Label(labelRect, exp.Description, labelStyle);
+			GUI.skin.horizontalScrollbar.fixedHeight = compact ? 8 : 13;
+			GUI.skin.horizontalScrollbarThumb.fixedHeight = compact ? 8 : 13;
+			ProgressBar(progressRect, exp.CompletedScience, exp.TotalScience, exp.CompletedScience + exp.OnboardScience, !compact, compact);
 		}
 
 		/// <summary>
@@ -300,13 +372,16 @@ namespace ScienceChecklist {
 		/// <param name="total">The total progress value.</param>
 		/// <param name="curr2">The shaded progress value (used to show onboard science).</param>
 		/// <param name="showValues">Whether to draw the curr and total values on top of the progress bar.</param>
-		private void ProgressBar (Rect rect, float curr, float total, float curr2, bool showValues) {
+		/// <param name="compact">Whether this progress bar should be rendered in compact mode.</param>
+		private void ProgressBar (Rect rect, float curr, float total, float curr2, bool showValues, bool compact) {
+			var completeTexture = compact ? _completeTextureCompact : _completeTexture;
+			var progressTexture = compact ? _progressTextureCompact : _progressTexture;
 			var complete = curr > total || (total - curr < 0.1);
 			if (complete) {
 				curr = total;
 			}
 			var progressRect = new Rect(rect) {
-				y = rect.y + 1,
+				y = rect.y + (compact ? 3 : 1),
 			};
 
 			if (curr2 != 0 && !complete) {
@@ -317,14 +392,16 @@ namespace ScienceChecklist {
 				}
 				_skin.horizontalScrollbarThumb.normal.background = curr2 < 0.1
 					? _emptyTexture
-					: complete2 ? _completeTexture : _progressTexture;
+					: complete2
+						? completeTexture
+						: progressTexture;
 
 				GUI.HorizontalScrollbar(progressRect, 0, curr2 / total, 0, 1, _horizontalScrollbarOnboardStyle);
 			}
 
 			_skin.horizontalScrollbarThumb.normal.background = curr < 0.1
 				? _emptyTexture
-				: complete ? _completeTexture : _progressTexture;
+				: complete ? completeTexture : progressTexture;
 
 			GUI.HorizontalScrollbar(progressRect, 0, curr / total, 0, 1);
 
@@ -341,21 +418,29 @@ namespace ScienceChecklist {
 		#region FIELDS
 
 		private Rect _rect;
+		private Rect _rect3;
 		private Vector2 _scrollPos;
+		private Vector2 _compactScrollPos;
 		private GUIStyle _labelStyle;
 		private GUIStyle _horizontalScrollbarOnboardStyle;
 		private GUIStyle _progressLabelStyle;
 		private GUIStyle _situationStyle;
 		private GUIStyle _experimentProgressLabelStyle;
 		private GUIStyle _tooltipStyle;
+		private GUIStyle _compactWindowStyle;
+		private GUIStyle _compactLabelStyle;
+		private GUIStyle _compactSituationStyle;
 		private GUISkin _skin;
 
 		private string _lastTooltip;
 		private bool _showSettings;
 		private int _lastDataCount;
+		private bool _compactMode;
 
 		private readonly Texture2D _progressTexture;
 		private readonly Texture2D _completeTexture;
+		private readonly Texture2D _progressTextureCompact;
+		private readonly Texture2D _completeTextureCompact;
 		private readonly Texture2D _emptyTexture;
 		private readonly Texture2D _currentSituationTexture;
 		private readonly Texture2D _currentVesselTexture;
@@ -366,12 +451,15 @@ namespace ScienceChecklist {
 		private readonly Texture2D _searchTexture;
 		private readonly Texture2D _clearSearchTexture;
 		private readonly Texture2D _settingsTexture;
+		private readonly Texture2D _minimizeTexture;
+		private readonly Texture2D _maximizeTexture;
 		private readonly SettingsPanel _settingsPanel;
 
 		private readonly ExperimentFilter _filter;
 		private readonly Logger _logger;
 		private readonly int _windowId = UnityEngine.Random.Range(0, int.MaxValue);
 		private readonly int _window2Id = UnityEngine.Random.Range(0, int.MaxValue);
+		private readonly int _window3Id = UnityEngine.Random.Range(0, int.MaxValue);
 
 		#endregion
 	}

@@ -75,6 +75,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="scienceCompleteCompact.png" />
+    <EmbeddedResource Include="scienceProgressCompact.png" />
     <EmbeddedResource Include="scienceComplete.png" />
     <EmbeddedResource Include="scienceProgress.png" />
     <EmbeddedResource Include="icon.png" />
@@ -87,6 +89,8 @@
     <EmbeddedResource Include="icons\settings.png" />
     <EmbeddedResource Include="icons\showComplete.png" />
     <EmbeddedResource Include="icons\unlocked.png" />
+    <EmbeddedResource Include="icons\maximize.png" />
+    <EmbeddedResource Include="icons\minimize.png" />
     <Content Include="LICENSE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

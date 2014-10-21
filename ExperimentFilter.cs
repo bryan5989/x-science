@@ -160,12 +160,10 @@ namespace ScienceChecklist {
 			var onboardScience = GameHelper.GetOnboardScience();
 
 			foreach (var experiment in experiments.Keys) {
-				var useSubBiomes = true;
 				var sitMask = experiment.situationMask;
 				var biomeMask = experiment.biomeMask;
 				if (sitMask == 0 && experiments[experiment] != null) {
 					// OrbitalScience support
-					useSubBiomes = false;
 					var sitMaskField = experiments[experiment].GetType().GetField("sitMask");
 					if (sitMaskField != null) {
 						sitMask = (uint) (int) sitMaskField.GetValue(experiments[experiment]);
@@ -213,18 +211,18 @@ namespace ScienceChecklist {
 
 						if (biomes[body].Any() && (biomeMask & (uint) situation) != 0) {
 							foreach (var biome in biomes[body]) {
-								exps.Add(new Experiment(experiment, new Situation(body, situation, biome), useSubBiomes, onboardScience));
+								exps.Add(new Experiment(experiment, new Situation(body, situation, biome), onboardScience));
 							}
 
-							if ((body.name == "Kerbin") && situation == ExperimentSituations.SrfLanded && useSubBiomes) {
+							if ((body.name == "Kerbin") && situation == ExperimentSituations.SrfLanded) {
 								foreach (var kscBiome in _kscBiomes) {
 									// Ew.
-									exps.Add(new Experiment(experiment, new Situation(body, situation, "Shores", kscBiome), useSubBiomes, onboardScience));
+									exps.Add(new Experiment(experiment, new Situation(body, situation, "Shores", kscBiome), onboardScience));
 								}
 							}
 
 						} else {
-							exps.Add(new Experiment(experiment, new Situation(body, situation), useSubBiomes, onboardScience));
+							exps.Add(new Experiment(experiment, new Situation(body, situation), onboardScience));
 						}
 					}
 				}
@@ -345,7 +343,7 @@ namespace ScienceChecklist {
 			return src
 				.Where(x => x.Situation.Body == CurrentSituation.Body)
 				.Where(x => string.IsNullOrEmpty(x.Situation.Biome) || x.Situation.Biome == CurrentSituation.Biome)
-				.Where(x => x.UsesSubBiomes ? x.Situation.SubBiome == CurrentSituation.SubBiome : true)
+				.Where(x => x.Situation.SubBiome == CurrentSituation.SubBiome)
 				.Where(x => x.Situation.ExperimentSituation == CurrentSituation.ExperimentSituation);
 		}
 

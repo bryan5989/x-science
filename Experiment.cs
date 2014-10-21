@@ -14,12 +14,10 @@ namespace ScienceChecklist {
 		/// </summary>
 		/// <param name="experiment">The ScienceExperiment to be used.</param>
 		/// <param name="situation">The Situation this experiment is valid in.</param>
-		/// <param name="usesSubBiomes">Indicates whether this experiment uses the special KSC biomes.</param>
 		/// <param name="onboardScience">A collection of all onboard ScienceData.</param>
-		public Experiment (ScienceExperiment experiment, Situation situation, bool usesSubBiomes, IEnumerable<ScienceData> onboardScience) {
+		public Experiment (ScienceExperiment experiment, Situation situation, IEnumerable<ScienceData> onboardScience) {
 			_experiment = experiment;
 			_situation = situation;
-			_usesSubBiomes = usesSubBiomes;
 			Update(onboardScience);
 		}
 
@@ -33,10 +31,6 @@ namespace ScienceChecklist {
 		/// Gets the Situation in which this experiment is valid.
 		/// </summary>
 		public Situation            Situation         { get { return _situation; } }
-		/// <summary>
-		/// Gets a value indicating whether this experiment uses the special KSC biomes.
-		/// </summary>
-		public bool                 UsesSubBiomes     { get { return _usesSubBiomes; } }
 		
 		/// <summary>
 		/// Gets the ResearchAndDevelopment ID for this experiment.
