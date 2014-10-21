@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -19,16 +18,17 @@ namespace ScienceChecklist {
 			_hideComplete = false;
 			_text = string.Empty;
 			_kscBiomes = new List<string>();
+			AllExperiments = new List<Experiment>();
 		}
 
 		/// <summary>
 		/// Gets all experiments that are available in the game.
 		/// </summary>
-		public IList<Experiment> AllExperiments     { get { return _allExperiments; } }
+		public IList<Experiment> AllExperiments     { get; private set; }
 		/// <summary>
 		/// Gets the experiments that should currently be displayed in the experiment list.
 		/// </summary>
-		public IList<Experiment> DisplayExperiments { get { return _displayExperiments; } }
+		public IList<Experiment> DisplayExperiments { get; private set; }
 		/// <summary>
 		/// Gets the number of display experiments that are complete.
 		/// </summary>
@@ -101,7 +101,7 @@ namespace ScienceChecklist {
 			_logger.Trace("UpdateExperiments");
 			var onboardScience = GameHelper.GetOnboardScience();
 
-			foreach (var exp in _allExperiments) {
+			foreach (var exp in AllExperiments) {
 				exp.Update(onboardScience);
 			}
 		}
@@ -113,14 +113,14 @@ namespace ScienceChecklist {
 			_logger.Info("RefreshExperimentCache");
 			if (ResearchAndDevelopment.Instance == null) {
 				_logger.Debug("ResearchAndDevelopment not instantiated.");
-				_allExperiments = new List<Experiment>();
+				AllExperiments = new List<Experiment>();
 				UpdateFilter();
 				return;
 			}
 
 			if (PartLoader.Instance == null) {
 				_logger.Debug("PartLoader not instantiated.");
-				_allExperiments = new List<Experiment>();
+				AllExperiments = new List<Experiment>();
 				UpdateFilter();
 				return;
 			}
@@ -241,7 +241,7 @@ namespace ScienceChecklist {
 				}
 			}
 
-			_allExperiments = exps;
+			AllExperiments = exps;
 			UpdateFilter();
 		}
 
@@ -250,7 +250,7 @@ namespace ScienceChecklist {
 		/// </summary>
 		public void UpdateFilter () {
 			_logger.Trace("UpdateFilter");
-			var query = _allExperiments.AsEnumerable();
+			var query = AllExperiments.AsEnumerable();
 			switch (_displayMode) {
 				case DisplayMode.All:
 					break;
@@ -267,16 +267,25 @@ namespace ScienceChecklist {
 					break;
 			}
 
-			query = query.OrderBy(x => x.TotalScience);
+			foreach (var word in Text.Split(' ')) {
+				var options = word.Split('|');
+				query = query.Where(x => options.Any(o => {
+					var s = o;
+					var negate = false;
+					if (o.StartsWith("-", StringComparison.InvariantCultureIgnoreCase)) {
+						negate = true;
+						s = o.Substring(1);
+					}
 
-			var search = Text.Split(' ').Select (x => x.Split('|')).ToList ();
+					return x.Description.ToLowerInvariant().Contains(s.ToLowerInvariant()) == !negate;
+				}));
+			}
 
-			query = query.Where(x => string.IsNullOrEmpty(Text) ||
-				search.All(y => y.Any(z => x.Description.ToLowerInvariant().Contains(z.ToLowerInvariant()))));
+			query = query.OrderBy (x => x.TotalScience);
 
 			CompleteCount = query.Count(x => x.IsComplete);
 			TotalCount = query.Count();
-			_displayExperiments = query.Where (x => !HideComplete || !x.IsComplete).ToList();
+			DisplayExperiments = query.Where (x => !HideComplete || !x.IsComplete).ToList();
 		}
 
 		/// <summary>
@@ -368,8 +377,6 @@ namespace ScienceChecklist {
 		private string _text;
 		private Situation _situation;
 
-		private IList<Experiment> _allExperiments;
-		private IList<Experiment> _displayExperiments;
 		private IList<string> _kscBiomes;
 
 		private readonly Logger _logger;
