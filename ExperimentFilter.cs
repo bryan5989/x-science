@@ -213,29 +213,18 @@ namespace ScienceChecklist {
 
 						if (biomes[body].Any() && (biomeMask & (uint) situation) != 0) {
 							foreach (var biome in biomes[body]) {
-								var subject = subjects
-									.Where (x => x.id == GetId(experiment, body, situation, biome))
-									.SingleOrDefault () ?? new ScienceSubject(experiment, situation, body, biome);
-
-								exps.Add(new Experiment(experiment, subject, new Situation(body, situation, biome), useSubBiomes, onboardScience));
+								exps.Add(new Experiment(experiment, new Situation(body, situation, biome), useSubBiomes, onboardScience));
 							}
 
 							if ((body.name == "Kerbin") && situation == ExperimentSituations.SrfLanded && useSubBiomes) {
 								foreach (var kscBiome in _kscBiomes) {
-									var subject = subjects
-										.Where(x => x.id == GetId(experiment, body, situation, kscBiome))
-										.SingleOrDefault() ?? new ScienceSubject(experiment, situation, body, kscBiome);
-
 									// Ew.
-									exps.Add(new Experiment(experiment, subject, new Situation(body, situation, "Shores", kscBiome), useSubBiomes, onboardScience));
+									exps.Add(new Experiment(experiment, new Situation(body, situation, "Shores", kscBiome), useSubBiomes, onboardScience));
 								}
 							}
 
 						} else {
-							var subject = subjects
-								.Where(x => x.id == GetId(experiment, body, situation))
-								.SingleOrDefault() ?? new ScienceSubject(experiment, situation, body);
-							exps.Add(new Experiment(experiment, subject, new Situation(body, situation), useSubBiomes, onboardScience));
+							exps.Add(new Experiment(experiment, new Situation(body, situation), useSubBiomes, onboardScience));
 						}
 					}
 				}
@@ -286,18 +275,6 @@ namespace ScienceChecklist {
 			CompleteCount = query.Count(x => x.IsComplete);
 			TotalCount = query.Count();
 			DisplayExperiments = query.Where (x => !HideComplete || !x.IsComplete).ToList();
-		}
-
-		/// <summary>
-		/// Gets the ResearchAndDevelopment ID for a given experiment and situation.
-		/// </summary>
-		/// <param name="exp">The experiment to get the ID for.</param>
-		/// <param name="body">The CelestialBody this experiment is for.</param>
-		/// <param name="sit">The ExperimentSituations this experiment is for.</param>
-		/// <param name="biome">Optionally, the biome this experiment is for.</param>
-		/// <returns>The ResearchAndDevelopmentID for the experiment.</returns>
-		private string GetId (ScienceExperiment exp, CelestialBody body, ExperimentSituations sit, string biome = null) {
-			return string.Format("{0}@{1}{2}{3}", exp.id, body.name, sit, biome ?? string.Empty);
 		}
 
 		/// <summary>

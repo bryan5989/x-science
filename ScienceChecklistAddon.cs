@@ -35,12 +35,15 @@ namespace ScienceChecklist {
 			_nextSituationUpdate = DateTime.Now;
 			GameEvents.onGUIApplicationLauncherReady.Add(Load);
 			GameEvents.onGUIApplicationLauncherDestroyed.Add(Unload);
-			GameEvents.OnScienceRecieved.Add((x, y) => UpdateExperiments());
-			GameEvents.onVesselWasModified.Add(x => OnPartsChanged());
-			GameEvents.onVesselChange.Add(x => OnPartsChanged());
-			GameEvents.onEditorShipModified.Add(x => OnPartsChanged());
-			GameEvents.onGameStateSave.Add(x => UpdateExperiments());
-			GameEvents.OnPartPurchased.Add(x => UpdateExperiments());
+
+			GameEvents.onVesselWasModified.Add(x => _filterRefreshPending = true);
+			GameEvents.onVesselChange.Add(x => _filterRefreshPending = true);
+			GameEvents.onEditorShipModified.Add(x => _filterRefreshPending = true);
+
+			GameEvents.onGameStateSave.Add(x => _experimentUpdatePending = true);
+			GameEvents.OnPartPurchased.Add(x => _experimentUpdatePending = true);
+			GameEvents.OnScienceChanged.Add((x, y) => _experimentUpdatePending = true);
+			GameEvents.OnScienceRecieved.Add((x, y) => _experimentUpdatePending = true);
 		}
 
 		/// <summary>
@@ -154,28 +157,6 @@ namespace ScienceChecklist {
 		}
 
 		/// <summary>
-		/// Schedules a refresh of the experiment cache.
-		/// </summary>
-		private void OnScienceReceived () {
-			if (!_active) {
-				return;
-			}
-			_logger.Trace("OnScienceReceived");
-			_experimentUpdatePending = true;
-		}
-
-		/// <summary>
-		/// Schedules a refresh of the experiment filter.
-		/// </summary>
-		private void OnPartsChanged () {
-			if (!_active) {
-				return;
-			}
-			_logger.Trace("OnPartsChanged");
-			_filterRefreshPending = true;
-		}
-
-		/// <summary>
 		/// Waits for the ResearchAndDevelopment and PartLoader instances to be available.
 		/// </summary>
 		/// <returns>An IEnumerator that can be used to resume this method.</returns>
@@ -206,7 +187,7 @@ namespace ScienceChecklist {
 		private IEnumerator UpdateExperiments () {
 			var nextCheck = DateTime.Now;
 			while (true) {
-				if (_experimentUpdatePending) {
+				if (_experimentUpdatePending && DateTime.Now > nextCheck) {
 					nextCheck = DateTime.Now.AddSeconds(1);
 					_window.UpdateExperiments();
 					_experimentUpdatePending = false;

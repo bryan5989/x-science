@@ -13,13 +13,11 @@ namespace ScienceChecklist {
 		/// Creates a new instance of the Experiment class.
 		/// </summary>
 		/// <param name="experiment">The ScienceExperiment to be used.</param>
-		/// <param name="subject">The existing ScienceSubject data.</param>
 		/// <param name="situation">The Situation this experiment is valid in.</param>
 		/// <param name="usesSubBiomes">Indicates whether this experiment uses the special KSC biomes.</param>
 		/// <param name="onboardScience">A collection of all onboard ScienceData.</param>
-		public Experiment (ScienceExperiment experiment, ScienceSubject subject, Situation situation, bool usesSubBiomes, IEnumerable<ScienceData> onboardScience) {
+		public Experiment (ScienceExperiment experiment, Situation situation, bool usesSubBiomes, IEnumerable<ScienceData> onboardScience) {
 			_experiment = experiment;
-			_subject = subject;
 			_situation = situation;
 			_usesSubBiomes = usesSubBiomes;
 			Update(onboardScience);
@@ -32,10 +30,6 @@ namespace ScienceChecklist {
 		/// </summary>
 		public ScienceExperiment    ScienceExperiment { get { return _experiment; } }
 		/// <summary>
-		/// Gets the ScienceSubject containing information on how much science has been retrieved from this experiment.
-		/// </summary>
-		public ScienceSubject       ScienceSubject    { get { return _subject; } }
-		/// <summary>
 		/// Gets the Situation in which this experiment is valid.
 		/// </summary>
 		public Situation            Situation         { get { return _situation; } }
@@ -43,6 +37,15 @@ namespace ScienceChecklist {
 		/// Gets a value indicating whether this experiment uses the special KSC biomes.
 		/// </summary>
 		public bool                 UsesSubBiomes     { get { return _usesSubBiomes; } }
+		
+		/// <summary>
+		/// Gets the ResearchAndDevelopment ID for this experiment.
+		/// </summary>
+		public string Id {
+			get {
+				return string.Format("{0}@{1}{2}{3}", ScienceExperiment.id, Situation.Body.name, Situation.ExperimentSituation, Situation.SubBiome ?? Situation.Biome ?? string.Empty);
+			}
+		}
 
 		/// <summary>
 		/// Gets the amount of science completed for this experiment.
@@ -63,7 +66,11 @@ namespace ScienceChecklist {
 		/// <summary>
 		/// Gets the amount of science for this experiment that is currently stored on vessels.
 		/// </summary>
-		public float  OnboardScience   { get; private set; }
+		public float OnboardScience    { get; private set; }
+		/// <summary>
+		/// Gets the ScienceSubject containing information on how much science has been retrieved from this experiment.
+		/// </summary>
+		public ScienceSubject ScienceSubject { get; private set; }
 
 		/// <summary>
 		/// Gets the human-readable description of this experiment.
@@ -86,13 +93,16 @@ namespace ScienceChecklist {
 		/// </summary>
 		/// <param name="onboardScience">The total onboard ScienceData.</param>
 		public void Update (IEnumerable<ScienceData> onboardScience) {
+			ScienceSubject = (ResearchAndDevelopment.GetSubjects() ?? new List<ScienceSubject> ())
+				.SingleOrDefault(x => x.id == Id)
+				?? new ScienceSubject(ScienceExperiment, Situation.ExperimentSituation, Situation.Body, Situation.SubBiome ?? Situation.Biome ?? string.Empty);
 			IsUnlocked = ScienceExperiment.id == "evaReport" ||
 				ScienceExperiment.id == "surfaceSample" ||
 				ScienceExperiment.id == "crewReport" ||
 				PartLoader.Instance.parts.Any(x => ResearchAndDevelopment.PartModelPurchased(x) && x.partPrefab.Modules != null && x.partPrefab.Modules.OfType<ModuleScienceExperiment>().Any(y => y.experimentID == ScienceExperiment.id));
 
-			CompletedScience = _subject.science * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier;
-			TotalScience = _subject.scienceCap * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier;
+			CompletedScience = ScienceSubject.science * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier;
+			TotalScience = ScienceSubject.scienceCap * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier;
 			IsComplete = CompletedScience > TotalScience || TotalScience - CompletedScience < 0.1;
 
 			var multiplier = ScienceExperiment.baseValue / ScienceExperiment.scienceCap;
@@ -113,7 +123,6 @@ namespace ScienceChecklist {
 		#region FIELDS
 
 		private readonly ScienceExperiment _experiment;
-		private readonly ScienceSubject _subject;
 		private readonly Situation _situation;
 		private readonly bool _usesSubBiomes;
 

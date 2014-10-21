@@ -8,6 +8,10 @@ namespace ScienceChecklist {
 	/// Contains helper methods for the current game state.
 	/// </summary>
 	internal static class GameHelper {
+		/// <summary>
+		/// Gets all available onboard science.
+		/// </summary>
+		/// <returns>A list containing all of the onboard science on all of the vessels.</returns>
 		public static List<ScienceData> GetOnboardScience () {
 			var onboardScience = new List<ScienceData>();
 			var vesselIds = new List<string>();
