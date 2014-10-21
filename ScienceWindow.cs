@@ -26,8 +26,6 @@ namespace ScienceChecklist {
 			_currentVesselTexture = TextureHelper.FromResource("ScienceChecklist.icons.currentVessel.png", 25, 21);
 			_unlockedTexture = TextureHelper.FromResource("ScienceChecklist.icons.unlocked.png", 25, 21);
 			_allTexture = TextureHelper.FromResource("ScienceChecklist.icons.all.png", 25, 21);
-			_hideCompleteTexture = TextureHelper.FromResource("ScienceChecklist.icons.hideComplete.png", 25, 21);
-			_showCompleteTexture = TextureHelper.FromResource("ScienceChecklist.icons.showComplete.png", 25, 21);
 			_searchTexture = TextureHelper.FromResource("ScienceChecklist.icons.search.png", 25, 21);
 			_clearSearchTexture = TextureHelper.FromResource("ScienceChecklist.icons.clearSearch.png", 25, 21);
 			_settingsTexture = TextureHelper.FromResource("ScienceChecklist.icons.settings.png", 25, 21);
@@ -36,7 +34,7 @@ namespace ScienceChecklist {
 			_emptyTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
 			_emptyTexture.SetPixels(new[] { Color.clear });
 			_emptyTexture.Apply();
-			_settingsPanel = new SettingsPanel();
+			_settingsPanel = new SettingsPanel(_filter);
 		}
 
 		#region PROPERTIES
@@ -208,7 +206,7 @@ namespace ScienceChecklist {
 			GUILayout.BeginVertical(GUILayout.Width(480), GUILayout.ExpandHeight(true));
 
 			ProgressBar(
-				new Rect (10, 27, 500, 13),
+				new Rect (10, 27, 480, 13),
 				_filter.TotalCount == 0 ? 1 : _filter.CompleteCount,
 				_filter.TotalCount == 0 ? 1 : _filter.TotalCount,
 				0,
@@ -263,15 +261,11 @@ namespace ScienceChecklist {
 			}
 
 			GUILayout.FlexibleSpace();
-			var toggleComplete = GUILayout.Button(new GUIContent(_filter.HideComplete ? _hideCompleteTexture : _showCompleteTexture, _filter.HideComplete ? "Currently hiding completed experiments" : "Currently showing completed experiments"), GUILayout.ExpandWidth(false));
-			if (toggleComplete) {
-				_filter.HideComplete = !_filter.HideComplete;
-			}
-
+			
 			var toggleSettings = GUILayout.Button(new GUIContent(_settingsTexture, "Settings"));
 			if (toggleSettings) {
 				_showSettings = !_showSettings;
-				_rect.width = _showSettings ? 700 : 500;
+				_rect.width = _showSettings ? 800 : 500;
 			}
 
 			var toggleCompact = GUILayout.Button(new GUIContent(_minimizeTexture, "Compact mode"));
@@ -446,8 +440,6 @@ namespace ScienceChecklist {
 		private readonly Texture2D _currentVesselTexture;
 		private readonly Texture2D _unlockedTexture;
 		private readonly Texture2D _allTexture;
-		private readonly Texture2D _hideCompleteTexture;
-		private readonly Texture2D _showCompleteTexture;
 		private readonly Texture2D _searchTexture;
 		private readonly Texture2D _clearSearchTexture;
 		private readonly Texture2D _settingsTexture;
