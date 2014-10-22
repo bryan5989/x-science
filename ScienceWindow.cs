@@ -99,7 +99,7 @@ namespace ScienceChecklist {
 				};
 
 				_compactWindowStyle = new GUIStyle(_skin.window) {
-					padding = new RectOffset(0, 2, 2, 2),
+					padding = new RectOffset(0, 4, 4, 4),
 				};
 
 				_compactLabelStyle = new GUIStyle(_labelStyle) {
@@ -109,6 +109,10 @@ namespace ScienceChecklist {
 				_compactSituationStyle = new GUIStyle(_situationStyle) {
 					fontSize = 11,
 					contentOffset = new Vector2(0, -3),
+				};
+
+				_compactButtonStyle = new GUIStyle(_skin.button) {
+					padding = new RectOffset(),
 				};
 			}
 
@@ -318,10 +322,6 @@ namespace ScienceChecklist {
 			GUILayout.EndVertical();
 
 			GUILayout.BeginHorizontal();
-			var toggleCompact = GUILayout.Button(new GUIContent(_maximizeTexture, "Normal mode"), GUILayout.Height(16), GUILayout.Width(16));
-			if (toggleCompact) {
-				_compactMode = !_compactMode;
-			}
 
 			GUILayout.FlexibleSpace();
 			if (_filter.CurrentSituation != null) {
@@ -329,6 +329,12 @@ namespace ScienceChecklist {
 				GUILayout.Label(char.ToUpper(desc[0]) + desc.Substring(1), _compactSituationStyle, GUILayout.Height(16));
 			}
 			GUILayout.FlexibleSpace();
+
+			var toggleCompact = GUILayout.Button(new GUIContent(_maximizeTexture, "Normal mode"), _compactButtonStyle, GUILayout.Height(16), GUILayout.Width(16));
+			if (toggleCompact) {
+				_compactMode = !_compactMode;
+			}
+			
 			GUILayout.EndHorizontal();
 
 			GUI.DragWindow();
@@ -424,6 +430,7 @@ namespace ScienceChecklist {
 		private GUIStyle _compactWindowStyle;
 		private GUIStyle _compactLabelStyle;
 		private GUIStyle _compactSituationStyle;
+		private GUIStyle _compactButtonStyle;
 		private GUISkin _skin;
 
 		private string _lastTooltip;
