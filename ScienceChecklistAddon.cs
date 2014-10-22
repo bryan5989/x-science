@@ -40,10 +40,10 @@ namespace ScienceChecklist {
 			GameEvents.onVesselChange.Add(x => _filterRefreshPending = true);
 			GameEvents.onEditorShipModified.Add(x => _filterRefreshPending = true);
 
-			GameEvents.onGameStateSave.Add(x => _experimentUpdatePending = true);
-			GameEvents.OnPartPurchased.Add(x => _experimentUpdatePending = true);
-			GameEvents.OnScienceChanged.Add((x, y) => _experimentUpdatePending = true);
-			GameEvents.OnScienceRecieved.Add((x, y) => _experimentUpdatePending = true);
+			GameEvents.onGameStateSave.Add(x => ScheduleExperimentUpdate());
+			GameEvents.OnPartPurchased.Add(x => ScheduleExperimentUpdate());
+			GameEvents.OnScienceChanged.Add((x, y) => ScheduleExperimentUpdate());
+			GameEvents.OnScienceRecieved.Add((x, y) => ScheduleExperimentUpdate());
 		}
 
 		/// <summary>
@@ -185,12 +185,10 @@ namespace ScienceChecklist {
 		/// </summary>
 		/// <returns></returns>
 		private IEnumerator UpdateExperiments () {
-			var nextCheck = DateTime.Now;
 			while (true) {
-				if (_window.IsVisible && _experimentUpdatePending && DateTime.Now > nextCheck) {
-					nextCheck = DateTime.Now.AddSeconds(1);
+				if (_window.IsVisible && _nextExperimentUpdate != null && _nextExperimentUpdate.Value < DateTime.Now) {
 					_window.UpdateExperiments();
-					_experimentUpdatePending = false;
+					_nextExperimentUpdate = null;
 				}
 
 				yield return 0;
@@ -277,6 +275,10 @@ namespace ScienceChecklist {
 			_window.IsVisible = _launcherVisible && _buttonClicked;
 		}
 
+		private void ScheduleExperimentUpdate () {
+			_nextExperimentUpdate = DateTime.Now.AddSeconds (1);
+		}
+
 		#endregion
 
 		#region FIELDS
@@ -290,7 +292,7 @@ namespace ScienceChecklist {
 		private ScienceWindow _window;
 		private IEnumerator _rndLoader;
 
-		private bool _experimentUpdatePending;
+		private DateTime? _nextExperimentUpdate;
 		private IEnumerator _experimentUpdater;
 		private bool _filterRefreshPending;
 		private IEnumerator _filterRefresher;
