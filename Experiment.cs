@@ -37,7 +37,7 @@ namespace ScienceChecklist {
 		/// </summary>
 		public string Id {
 			get {
-				return string.Format("{0}@{1}{2}{3}", ScienceExperiment.id, Situation.Body.name, Situation.ExperimentSituation, Situation.SubBiome ?? Situation.Biome ?? string.Empty);
+				return string.Format("{0}@{1}{2}{3}", ScienceExperiment.id, Situation.Body.name, Situation.ExperimentSituation, (Situation.SubBiome ?? Situation.Biome ?? string.Empty).Replace(" ", ""));
 			}
 		}
 
