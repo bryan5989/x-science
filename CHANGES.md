@@ -1,6 +1,16 @@
 [x] Science!
 ============
 
+3.1
+---
+* Can now use the - symbol to do NOT searches e.g. "goo -Minmus".
+* Added compact mode.
+* Moved the complete experiment filter option to the settings panel.
+* Now only updates when the window is open.
+* Fixed ArgumentNullException when running alongside Karbonite (thanks Jaxx).
+* Fixed experiments not being detected in biomes with spaces in them (thanks Tahib).
+* Now refreshes the experiment cache far less frequently - only once per scene instead of whenever science is obtained or the active vessel is changed.
+
 3.0
 ---
 * Added onboard science detection.
