@@ -133,6 +133,7 @@ namespace ScienceChecklist {
 					Module = x,
 					Experiment = ResearchAndDevelopment.GetExperiment(x.experimentID),
 				})
+				.Where(x => x.Experiment != null)
 				.GroupBy(x => x.Experiment)
 				.ToDictionary(x => x.Key, x => x.First().Module);
 
