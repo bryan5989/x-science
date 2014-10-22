@@ -67,7 +67,7 @@ namespace ScienceChecklist {
 		/// Called by Unity once per frame.
 		/// </summary>
 		public void Update () {
-			if (!_active) {
+			if (!_window.IsVisible) {
 				return;
 			}
 
@@ -187,7 +187,7 @@ namespace ScienceChecklist {
 		private IEnumerator UpdateExperiments () {
 			var nextCheck = DateTime.Now;
 			while (true) {
-				if (_experimentUpdatePending && DateTime.Now > nextCheck) {
+				if (_window.IsVisible && _experimentUpdatePending && DateTime.Now > nextCheck) {
 					nextCheck = DateTime.Now.AddSeconds(1);
 					_window.UpdateExperiments();
 					_experimentUpdatePending = false;
@@ -204,7 +204,7 @@ namespace ScienceChecklist {
 		private IEnumerator RefreshFilter () {
 			var nextCheck = DateTime.Now;
 			while (true) {
-				if (_filterRefreshPending && DateTime.Now > nextCheck) {
+				if (_window.IsVisible && _filterRefreshPending && DateTime.Now > nextCheck) {
 					nextCheck = DateTime.Now.AddSeconds(0.5);
 					_window.RefreshFilter();
 					_filterRefreshPending = false;
