@@ -273,8 +273,12 @@ namespace ScienceChecklist {
 			}
 			_logger.Trace("UpdateVisibility");
 			_window.IsVisible = _launcherVisible && _buttonClicked;
+			ScheduleExperimentUpdate();
 		}
 
+		/// <summary>
+		/// Schedules a full experiment update in 1 second.
+		/// </summary>
 		private void ScheduleExperimentUpdate () {
 			_nextExperimentUpdate = DateTime.Now.AddSeconds (1);
 		}
