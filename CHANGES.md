@@ -1,6 +1,11 @@
 [x] Science!
 ============
 
+4.0
+---
+* Added support for blizzy's toolbar - find the toggle in the settings menu if you've got it installed.
+* Changes to the settings are now saved across games.
+
 3.1
 ---
 * Can now use the - symbol to do NOT searches e.g. "goo -Minmus".
