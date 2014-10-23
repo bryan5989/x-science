@@ -5,15 +5,15 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 
-namespace ScienceChecklist {
+namespace ScienceChecklist.Buttons {
 	/// <summary>
 	/// A button that is rendered to the KSP toolbar.
 	/// </summary>
-	public sealed class ToolbarButton {
+	public sealed class AppLauncherButton : IToolbarButton {
 		/// <summary>
-		/// Creates a new instance of the ToolbarButton class.
+		/// Creates a new instance of the AppLauncherButton class.
 		/// </summary>
-		public ToolbarButton () {
+		public AppLauncherButton () {
 			_logger = new Logger(this);
 		}
 

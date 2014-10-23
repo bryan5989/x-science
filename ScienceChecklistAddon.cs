@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ScienceChecklist.Buttons;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +30,7 @@ namespace ScienceChecklist {
 			_logger = new Logger(this);
 			_logger.Trace("Awake");
 			_window = new ScienceWindow();
-			_button = new ToolbarButton();
+			_button = new BlizzysToolbarButton();//new AppLauncherButton();
 			_button.Open += Button_Open;
 			_button.Close += Button_Close;
 			_nextSituationUpdate = DateTime.Now;
@@ -61,6 +62,15 @@ namespace ScienceChecklist {
 			_logger.Trace("OnApplicationQuit");
 			_button.Open -= Button_Open;
 			_button.Close -= Button_Close;
+		}
+
+		/// <summary>
+		/// Called by Unity when this instance is destroyed.
+		/// </summary>
+		public void OnDestroy () {
+			if (_button != null) {
+				_button.Remove();
+			}
 		}
 
 		/// <summary>
@@ -290,7 +300,7 @@ namespace ScienceChecklist {
 		private DateTime _nextSituationUpdate;
 		private bool _active;
 		private Logger _logger;
-		private ToolbarButton _button;
+		private IToolbarButton _button;
 		private bool _launcherVisible;
 		private bool _buttonClicked;
 		private ScienceWindow _window;
