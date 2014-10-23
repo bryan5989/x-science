@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Buttons\BlizzysToolbarButton.cs" />
     <Compile Include="Buttons\IToolbarButton.cs" />
+    <Compile Include="Config.cs" />
     <Compile Include="DisplayMode.cs" />
     <Compile Include="Experiment.cs" />
     <Compile Include="ExperimentalFeatures.cs" />

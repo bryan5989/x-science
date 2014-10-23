@@ -34,7 +34,8 @@ namespace ScienceChecklist {
 			_emptyTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
 			_emptyTexture.SetPixels(new[] { Color.clear });
 			_emptyTexture.Apply();
-			_settingsPanel = new SettingsPanel(_filter);
+			_settingsPanel = new SettingsPanel();
+			_settingsPanel.HideCompleteEventsChanged += (s, e) => _filter.UpdateFilter();
 		}
 
 		#region PROPERTIES
@@ -43,6 +44,11 @@ namespace ScienceChecklist {
 		/// Gets or sets a value indicating whether this window should be drawn.
 		/// </summary>
 		public bool IsVisible { get; set; }
+
+		/// <summary>
+		/// Gets the settings for this window.
+		/// </summary>
+		public SettingsPanel Settings { get { return _settingsPanel; } }
 
 		#endregion
 

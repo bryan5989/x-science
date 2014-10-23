@@ -72,7 +72,7 @@ namespace ScienceChecklist.Buttons {
 			}
 
 			_logger.Info("Removing button");
-			ApplicationLauncher.Instance.RemoveApplication(_button);
+			ApplicationLauncher.Instance.RemoveModApplication(_button);
 			_button = null;
 		}
 

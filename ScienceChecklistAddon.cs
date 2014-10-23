@@ -25,14 +25,15 @@ namespace ScienceChecklist {
 				return;
 			}
 
+			Config.Load();
+
 			_addonInitialized = true;
 			_active = false;
 			_logger = new Logger(this);
 			_logger.Trace("Awake");
 			_window = new ScienceWindow();
-			_button = new BlizzysToolbarButton();//new AppLauncherButton();
-			_button.Open += Button_Open;
-			_button.Close += Button_Close;
+			_window.Settings.UseBlizzysToolbarChanged += Settings_UseBlizzysToolbarChanged;
+			
 			_nextSituationUpdate = DateTime.Now;
 			GameEvents.onGUIApplicationLauncherReady.Add(Load);
 			GameEvents.onGUIApplicationLauncherDestroyed.Add(Unload);
@@ -60,8 +61,12 @@ namespace ScienceChecklist {
 		/// </summary>
 		public void OnApplicationQuit () {
 			_logger.Trace("OnApplicationQuit");
-			_button.Open -= Button_Open;
-			_button.Close -= Button_Close;
+			if (_button != null) {
+				_button.Remove();
+				_button.Open -= Button_Open;
+				_button.Close -= Button_Close;
+				_button = null;
+			}
 		}
 
 		/// <summary>
@@ -70,6 +75,9 @@ namespace ScienceChecklist {
 		public void OnDestroy () {
 			if (_button != null) {
 				_button.Remove();
+				_button.Open -= Button_Open;
+				_button.Close -= Button_Close;
+				_button = null;
 			}
 		}
 
@@ -120,7 +128,7 @@ namespace ScienceChecklist {
 			_logger.Info("Game type is " + HighLogic.CurrentGame.Mode + ". Activating.");
 			_active = true;
 
-			_button.Add();
+			InitializeButton();
 
 			_launcherVisible = true;
 			ApplicationLauncher.Instance.AddOnShowCallback(Launcher_Show);
@@ -291,6 +299,36 @@ namespace ScienceChecklist {
 		/// </summary>
 		private void ScheduleExperimentUpdate () {
 			_nextExperimentUpdate = DateTime.Now.AddSeconds (1);
+		}
+
+		/// <summary>
+		/// Handler for the UseBlizzysToolbarChanged event on _window.Settings.
+		/// </summary>
+		/// <param name="sender">The sender of the event.</param>
+		/// <param name="e">The EventArgs of the event.</param>
+		private void Settings_UseBlizzysToolbarChanged (object sender, EventArgs e) {
+			InitializeButton();
+		}
+
+		/// <summary>
+		/// Initializes the toolbar button.
+		/// </summary>
+		private void InitializeButton () {
+			if (_button != null) {
+				_button.Open -= Button_Open;
+				_button.Close -= Button_Close;
+				_button.Remove();
+				_button = null;
+			}
+
+			if (Config.UseBlizzysToolbar && BlizzysToolbarButton.IsAvailable) {
+				_button = new BlizzysToolbarButton();
+			} else {
+				_button = new AppLauncherButton();
+			}
+			_button.Open += Button_Open;
+			_button.Close += Button_Close;
+			_button.Add();
 		}
 
 		#endregion

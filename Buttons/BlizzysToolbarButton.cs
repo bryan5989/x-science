@@ -22,11 +22,16 @@ namespace ScienceChecklist.Buttons {
 		public event EventHandler Close;
 
 		/// <summary>
+		/// Returns whether Blizzy's toolbar is available.
+		/// </summary>
+		public static bool IsAvailable { get { return ToolbarManager.ToolbarAvailable; } }
+
+		/// <summary>
 		/// Adds the button to the toolbar.
 		/// </summary>
 		public void Add () {
 			_logger.Trace("Add");
-			if (!ToolbarManager.ToolbarAvailable) {
+			if (!IsAvailable) {
 				_logger.Info("Blizzy's toolbar not available.");
 				return;
 			}
@@ -73,7 +78,7 @@ namespace ScienceChecklist.Buttons {
 		/// </summary>
 		public void Remove () {
 			_logger.Trace("Remove");
-			if (!ToolbarManager.ToolbarAvailable) {
+			if (!IsAvailable) {
 				_logger.Info("Blizzy's toolbar not available.");
 				return;
 			}

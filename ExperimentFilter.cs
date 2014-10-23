@@ -15,7 +15,6 @@ namespace ScienceChecklist {
 		public ExperimentFilter () {
 			_logger = new Logger(this);
 			_displayMode = DisplayMode.Unlocked;
-			_hideComplete = false;
 			_text = string.Empty;
 			_kscBiomes = new List<string>();
 			AllExperiments = new List<Experiment>();
@@ -47,20 +46,6 @@ namespace ScienceChecklist {
 			} set {
 				if (_displayMode != value) {
 					_displayMode = value;
-					UpdateFilter();
-				}
-			}
-		}
-
-		/// <summary>
-		/// Gets or sets a value indicating whether to hide completed experiments.
-		/// </summary>
-		public bool HideComplete {
-			get {
-				return _hideComplete;
-			} set {
-				if (_hideComplete != value) {
-					_hideComplete = value;
 					UpdateFilter();
 				}
 			}
@@ -273,7 +258,7 @@ namespace ScienceChecklist {
 
 			CompleteCount = query.Count(x => x.IsComplete);
 			TotalCount = query.Count();
-			DisplayExperiments = query.Where (x => !HideComplete || !x.IsComplete).ToList();
+			DisplayExperiments = query.Where (x => !Config.HideCompleteExperiments || !x.IsComplete).ToList();
 		}
 
 		/// <summary>
@@ -349,7 +334,6 @@ namespace ScienceChecklist {
 		}
 
 		private DisplayMode _displayMode;
-		private bool _hideComplete;
 		private string _text;
 		private Situation _situation;
 

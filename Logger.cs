@@ -17,6 +17,14 @@ namespace ScienceChecklist {
 			_ownerName = parent.GetType().Name;
 		}
 
+		/// <summary>
+		/// Creates a new instance of the Logger class to be used by static classes.
+		/// </summary>
+		/// <param name="parentName">The name of the parent.</param>
+		public Logger (string parentName) {
+			_ownerName = parentName;
+		}
+
 		#region METHODS (PUBLIC)
 
 		/// <summary>
